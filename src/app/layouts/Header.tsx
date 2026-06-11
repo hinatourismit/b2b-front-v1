@@ -7,7 +7,9 @@ import {
   Users,
   Wallet,
   Menu,
+  ShoppingCart,
 } from "lucide-react";
+import { useCartStore } from "@/features/attractions/store/cart.store";
 import { branding } from "@/config/branding";
 import { enabledModules } from "@/config/modules";
 import { useAgent } from "@/features/auth/api/auth.queries";
@@ -69,6 +71,23 @@ function ModuleNav({ className }: { className?: string }) {
         </NavLink>
       ))}
     </nav>
+  );
+}
+
+function CartButton() {
+  const count = useCartStore((s) => s.items.length);
+  if (count === 0) return null;
+  return (
+    <Link
+      to="/attractions/payment"
+      className="relative flex size-9 items-center justify-center rounded-full transition-colors hover:bg-accent"
+      aria-label={`Cart, ${count} items`}
+    >
+      <ShoppingCart className="size-4.5" />
+      <span className="absolute -right-0.5 -top-0.5 flex size-4.5 items-center justify-center rounded-full bg-gold text-[10px] font-bold text-gold-foreground">
+        {count}
+      </span>
+    </Link>
   );
 }
 
@@ -184,6 +203,7 @@ export function Header() {
         </div>
         <ModuleNav className="hidden md:flex" />
         <div className="flex items-center gap-2.5">
+          <CartButton />
           <WalletChip />
           <AgentMenu />
         </div>

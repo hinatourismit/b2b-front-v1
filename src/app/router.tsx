@@ -17,6 +17,18 @@ const ModulePlaceholderPage = lazy(() => import("@/features/dashboard/pages/Modu
 // Payment return targets (paths are CCAvenue contract — do not change)
 const PaymentDeclinedPage = lazy(() => import("@/features/payments/pages/PaymentDeclinedPage"));
 const DepositSuccessPage = lazy(() => import("@/features/payments/pages/DepositSuccessPage"));
+const PaymentApprovalPage = lazy(() => import("@/features/payments/pages/PaymentApprovalPage"));
+
+// Attractions (Phase B2)
+const AttractionHomePage = lazy(() => import("@/features/attractions/pages/AttractionHomePage"));
+const AttractionListingPage = lazy(() => import("@/features/attractions/pages/AttractionListingPage"));
+const AttractionDetailsPage = lazy(() => import("@/features/attractions/pages/AttractionDetailsPage"));
+const AttractionCheckoutPage = lazy(() => import("@/features/attractions/pages/AttractionCheckoutPage"));
+const AttractionOrdersPage = lazy(() => import("@/features/attractions/pages/AttractionOrdersPage"));
+const AttractionInvoicePage = lazy(() => import("@/features/attractions/pages/AttractionInvoicePage"));
+const AttractionPaymentErrorPage = lazy(
+  () => import("@/features/attractions/pages/AttractionPaymentErrorPage"),
+);
 
 const NotFoundPage = lazy(() => import("@/components/common/NotFoundPage"));
 
@@ -39,7 +51,17 @@ export const router = createBrowserRouter([
     children: [
       // Module home placeholders — replaced as Phase B/C land.
       { index: true, element: suspense(<ModulePlaceholderPage module="hotels" />) },
-      { path: "attraction", element: suspense(<ModulePlaceholderPage module="attractions" />) },
+
+      // Attractions (Phase B2) — paths mirror the old portal exactly
+      { path: "attraction", element: suspense(<AttractionHomePage />) },
+      { path: "attractions/:slug", element: suspense(<AttractionListingPage />) },
+      { path: "attractions/details/:id", element: suspense(<AttractionDetailsPage />) },
+      { path: "attractions/payment", element: suspense(<AttractionCheckoutPage />) },
+      { path: "attraction/order", element: suspense(<AttractionOrdersPage />) },
+      { path: "attractions/invoice/error", element: suspense(<AttractionPaymentErrorPage />) },
+      { path: "attractions/invoice/:id", element: suspense(<AttractionInvoicePage />) },
+      { path: "payment/approval", element: suspense(<PaymentApprovalPage />) },
+
       { path: "visa", element: suspense(<ModulePlaceholderPage module="visas" />) },
       { path: "a2a", element: suspense(<ModulePlaceholderPage module="a2a" />) },
       { path: "quotation", element: suspense(<ModulePlaceholderPage module="quotations" />) },

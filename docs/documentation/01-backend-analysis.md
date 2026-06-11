@@ -62,6 +62,7 @@ Key facts:
 - **No refresh token** for the web portal (the partner API at `/api/reseller/auth` has a `/token` refresh, but the portal does not use it). On 401 the frontend simply logs out.
 - **Roles**: `reseller` (master agent) and `sub-agent`. Sub-agents are created by resellers via `/resellers/register`.
 - **Account states**: `pending` (login returns 200 with `status: "pending"` + `agentCode` + `randomString` for the document-upload verification page), non-`ok` (400 with "disabled" message), `ok` (full login).
+- **Agent code at login**: when the backend env has `LOGIN_AGENTCODE_REQUIRED=true` (production does), the login body's `agentCode` must match the account or the API returns 400 "Invalid credentials" — even with a correct password. The login form must always collect agent code.
 - **Login response** (`POST /b2b/resellers/auth/login`):
   ```json
   { "status": "ok", "reseller": { ...resellerDoc, "configuration": {...} }, "jwtToken": "...", "agentCode": 123 }
