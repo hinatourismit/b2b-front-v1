@@ -34,6 +34,8 @@ export interface Agent {
 }
 
 export interface LoginPayload {
+  /** required in production (LOGIN_AGENTCODE_REQUIRED=true on the backend) */
+  agentCode: string;
   email: string;
   password: string;
 }

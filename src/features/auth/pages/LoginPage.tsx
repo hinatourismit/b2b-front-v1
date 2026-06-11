@@ -14,6 +14,9 @@ import { ForgotPasswordDialog } from "../components/ForgotPasswordDialog";
 import { apiErrorMessage } from "@/types/api";
 
 const loginSchema = z.object({
+  // Production backend runs with LOGIN_AGENTCODE_REQUIRED=true — the code
+  // must match the account or login is rejected.
+  agentCode: z.string().min(1, "Agent code is required").regex(/^\d+$/, "Numbers only"),
   email: z.string().email("Enter a valid email address"),
   password: z.string().min(1, "Password is required"),
 });
@@ -52,6 +55,20 @@ export default function LoginPage() {
       </div>
 
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
+        <div className="space-y-1.5">
+          <Label htmlFor="agentCode">Agent code</Label>
+          <Input
+            id="agentCode"
+            inputMode="numeric"
+            autoComplete="username"
+            placeholder="e.g. 1234"
+            {...form.register("agentCode")}
+          />
+          {form.formState.errors.agentCode && (
+            <p className="text-xs text-destructive">{form.formState.errors.agentCode.message}</p>
+          )}
+        </div>
+
         <div className="space-y-1.5">
           <Label htmlFor="email">Email</Label>
           <Input
