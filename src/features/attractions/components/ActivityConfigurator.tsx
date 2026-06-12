@@ -167,6 +167,17 @@ export function ActivityConfigurator({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transferOptions.join("|")]);
 
+  // Vehicles initialize from the pricing response's default counts (old
+  // ActivityComponent.jsx:363-380 — backend pre-allocates e.g. 1 vehicle for
+  // the pax count) and reset whenever a price recheck replaces the pricing.
+  useEffect(() => {
+    const priv = pricing.find((p) => p.transferType === "private");
+    if (priv?.privateTransfers) {
+      setVehicles(priv.privateTransfers.map((r) => ({ ...r, count: r.count ?? 0 })));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pricing]);
+
   // Old-app render rule (ActivityComponent.jsx:2077): the entry in pricing[]
   // whose transferType matches the current selection.
   const matchedPricing =
@@ -182,6 +193,16 @@ export function ActivityConfigurator({
     0,
   );
 
+  // Private total = ticket portion + selected vehicles. The backend's private
+  // totalPrice includes its default vehicle allocation, so ticket portion =
+  // totalPrice − Σ(defaultCount × price); vehicle changes adjust on top.
+  const privatePricing = pricing.find((p) => p.transferType === "private");
+  const defaultVehicleTotal = (privatePricing?.privateTransfers ?? []).reduce(
+    (acc, r) => acc + (r.count ?? 0) * (r.price ?? 0),
+    0,
+  );
+  const ticketPortion = Math.max(0, (privatePricing?.totalPrice ?? 0) - defaultVehicleTotal);
+
   // Timeslot products price from the selected slot: adult*AdultPrice +
   // child*ChildPrice (old summary table, SlotBookingComponent.jsx:232).
   const slotTotal = selectedSlot
@@ -189,8 +210,8 @@ export function ActivityConfigurator({
     : null;
 
   const displayPrice =
-    transfer === "private" && privateTransferTotal > 0
-      ? privateTransferTotal
+    transfer === "private"
+      ? ticketPortion + privateTransferTotal
       : (slotTotal ?? matchedPricing?.totalPrice ?? activity.lowPrice ?? 0);
 
   const addToCart = () => {
