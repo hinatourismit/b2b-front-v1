@@ -51,6 +51,8 @@ export interface TimeSlot {
 
 export interface PrivateTransfer {
   _id?: string;
+  /** id used inside pricing[].privateTransfers (controller naming) */
+  pvtTransferId?: string;
   name?: string;
   maxCapacity?: number;
   price?: number;
@@ -108,11 +110,31 @@ export interface SingleAttractionResponse {
   ticketStatus?: unknown;
 }
 
-/** Price-check response merges into the activity by activityId (old updateActivity). */
+/**
+ * Price-check response (controller b2bClientAttractionController.js:975).
+ * Price lives in pricing[] — one entry per transferType; the old UI renders
+ * pricing.find(p => p.transferType === selectedTransfer).totalPrice
+ * (ActivityComponent.jsx:2077). There is NO top-level totalPrice.
+ */
+export interface PricingEntry {
+  transferType?: "without" | "shared" | "private" | string;
+  totalPrice?: number;
+  privateTransfers?: (PrivateTransfer & { pvtTransferId?: string })[];
+  [key: string]: unknown;
+}
+
 export interface PriceCheckResponse {
   activityId: string;
-  totalPrice?: number;
-  [key: string]: unknown;
+  hourCount?: number;
+  adultCount?: number;
+  childCount?: number;
+  infantCount?: number;
+  date?: string;
+  pricing?: PricingEntry[];
+  activityType?: string;
+  isTimeSlot?: boolean;
+  productId?: string;
+  productCode?: string;
 }
 
 /**

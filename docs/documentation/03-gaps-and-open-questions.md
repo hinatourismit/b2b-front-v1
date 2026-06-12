@@ -10,6 +10,7 @@
 | 4 | Standalone transfers | **Defer to a later phase** — plan for it in the architecture, build after feature parity. |
 | 7 | Payment gateways | **CCAvenue only** is active — build it first; stub the others behind the payment abstraction. |
 | 1 | API server URL | **Resolved** — old `constants.js` provided (see `04-environment-config.md`). Production API: `https://api-server-i1.mytravellerschoice.com`. New app reads it from `VITE_API_URL`. Still need a test/local backend URL for development. |
+| 3b | Landing page | **Updated 2026-06-12:** Attractions home is the landing page at `/` (supersedes "hotel search stays at /"). Hotels placeholder at `/hotel`; revisit the hotel home path when Phase B1 lands. Module fallback priority now: attractions → hotels → visas → a2a → quotations → insurance. |
 | — | Flights | **Deferred** (decided 2026-06-12) — not currently operated. Skip the Flight module entirely in the initial build; plan for it as a later phase. The `showFlight` config flag and module-fallback redirect order must still be handled (flag off → module hidden). A2A (fixed air tickets) is a separate module and remains in scope unless stated otherwise. |
 
 ## Missing artifacts

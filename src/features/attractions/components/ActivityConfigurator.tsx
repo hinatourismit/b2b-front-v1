@@ -2,7 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CalendarDays, Clock3, Loader2, Minus, Plus, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
-import type { Activity, AttractionDetails, CartItem, PrivateTransfer, TimeSlot } from "../types";
+import type {
+  Activity,
+  AttractionDetails,
+  CartItem,
+  PricingEntry,
+  PrivateTransfer,
+  TimeSlot,
+} from "../types";
 import { usePriceCheck, useTimeSlots } from "../api/attractions.queries";
 import { useCartStore } from "../store/cart.store";
 import { Button } from "@/components/ui/button";
@@ -87,7 +94,7 @@ export function ActivityConfigurator({
   const [vehicles, setVehicles] = useState<PrivateTransfer[]>([]);
   const [slots, setSlots] = useState<TimeSlot[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
-  const [checkedPrice, setCheckedPrice] = useState<number | null>(null);
+  const [pricing, setPricing] = useState<PricingEntry[]>([]);
 
   const debounce = useRef<number>(0);
 
@@ -110,11 +117,9 @@ export function ActivityConfigurator({
           },
         },
         {
-          onSuccess: (data) => {
-            if (typeof data.totalPrice === "number") setCheckedPrice(data.totalPrice);
-          },
+          onSuccess: (data) => setPricing(data.pricing ?? []),
           onError: (err) => {
-            setCheckedPrice(null);
+            setPricing([]);
             toast.error(apiErrorMessage(err, "No availability for the selected date"));
           },
         },
@@ -143,6 +148,16 @@ export function ActivityConfigurator({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [date, activity._id]);
 
+  // Old-app render rule (ActivityComponent.jsx:2077): the entry in pricing[]
+  // whose transferType matches the current selection.
+  const matchedPricing =
+    pricing.find((p) => p.transferType === transfer) ?? pricing[0];
+
+  // Private vehicle list comes from the pricing entry when present (it carries
+  // marked-up prices); fall back to the activity's static list.
+  const vehicleOptions =
+    matchedPricing?.privateTransfers ?? activity.privateTransfers ?? [];
+
   const privateTransferTotal = vehicles.reduce(
     (acc, v) => acc + (v.count ?? 0) * (v.price ?? 0),
     0,
@@ -151,7 +166,7 @@ export function ActivityConfigurator({
   const displayPrice =
     transfer === "private" && privateTransferTotal > 0
       ? privateTransferTotal
-      : (checkedPrice ?? activity.lowPrice ?? 0);
+      : (matchedPricing?.totalPrice ?? activity.lowPrice ?? 0);
 
   const addToCart = () => {
     if (!date) {
@@ -175,7 +190,7 @@ export function ActivityConfigurator({
       selectedVehicle: vehicles.filter((v) => (v.count ?? 0) > 0),
       vehicle: vehicles.filter((v) => (v.count ?? 0) > 0),
       price: displayPrice,
-      totalPrice: checkedPrice ?? undefined,
+      totalPrice: matchedPricing?.totalPrice,
       isPromoAdded: false,
       attractionTitle: attraction.title,
       attractionImage: attraction.images?.[0],
@@ -262,13 +277,15 @@ export function ActivityConfigurator({
         </div>
       </div>
 
-      {transfer === "private" && (activity.privateTransfers?.length ?? 0) > 0 && (
+      {transfer === "private" && vehicleOptions.length > 0 && (
         <div className="mt-4 space-y-2 rounded-lg bg-secondary/60 p-3">
           <p className="text-xs font-semibold text-muted-foreground">Private vehicles</p>
-          {activity.privateTransfers!.map((v, i) => {
-            const current = vehicles.find((x) => x._id === v._id)?.count ?? 0;
+          {vehicleOptions.map((v, i) => {
+            const vid = v._id ?? v.pvtTransferId ?? v.name;
+            const current =
+              vehicles.find((x) => (x._id ?? x.pvtTransferId ?? x.name) === vid)?.count ?? 0;
             return (
-              <div key={v._id ?? i} className="flex items-center justify-between text-sm">
+              <div key={vid ?? i} className="flex items-center justify-between text-sm">
                 <span>
                   {v.name} <span className="text-xs text-muted-foreground">(max {v.maxCapacity})</span>
                 </span>
@@ -278,7 +295,9 @@ export function ActivityConfigurator({
                     value={current}
                     onChange={(count) =>
                       setVehicles((prev) => {
-                        const rest = prev.filter((x) => x._id !== v._id);
+                        const rest = prev.filter(
+                          (x) => (x._id ?? x.pvtTransferId ?? x.name) !== vid,
+                        );
                         return count > 0 ? [...rest, { ...v, count }] : rest;
                       })
                     }
