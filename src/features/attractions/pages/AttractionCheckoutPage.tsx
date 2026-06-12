@@ -63,9 +63,14 @@ export default function AttractionCheckoutPage() {
   const form = useForm<LeadForm>({ resolver: zodResolver(leadSchema) });
   const grandTotal = total();
 
+  // Backend rule (checkWalletBalance.js): spendable = balance + (creditAmount
+  // - creditUsed). Credit lets agents pay even with zero cash balance.
+  const spendable =
+    (balance?.balance ?? 0) + ((balance?.creditAmount ?? 0) - (balance?.creditUsed ?? 0));
+
   const onSubmit = (values: LeadForm) => {
-    if (payBy === "wallet" && (balance?.balance ?? 0) < grandTotal) {
-      toast.error("Not enough wallet balance", {
+    if (payBy === "wallet" && spendable < grandTotal) {
+      toast.error("Not enough wallet balance or credit", {
         description: "Please top up your wallet and try again.",
       });
       return;
@@ -270,7 +275,8 @@ export default function AttractionCheckoutPage() {
                     <Wallet className="size-4" /> Wallet
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {formatPrice(balance?.balance)} available
+                    {formatPrice(spendable)} available
+                    {(balance?.creditAmount ?? 0) > 0 ? " (incl. credit)" : ""}
                   </span>
                 </button>
                 <button
