@@ -1,6 +1,12 @@
 import { apiClient } from "@/lib/api-client";
 
-const BASE = "/b2b/home";
+/**
+ * Old B2B frontend sources initial-data from the B2C route (homeSlice.js:37:
+ * GET `/home/initial-data`), NOT /b2b/home — preserved. Response keys
+ * { countries, destinations, currencies, popularHotelCities }
+ * (homeControllers.js getInitialData).
+ */
+const BASE = "/home";
 
 export interface Country {
   _id: string;

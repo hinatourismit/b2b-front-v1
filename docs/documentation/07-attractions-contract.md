@@ -18,9 +18,9 @@
 | Complete (wallet) | POST `/b2b/attractions/orders/complete/:orderId` body `{ otp: 12345 }` | "OTP" is a hardcoded 12345 behind a confirm dialog; success → navigate `/attractions/invoice/<response._id>` and empty cart |
 | Complete (ccavenue) | create-order response is an **HTML page** → old app blobs it and `window.location.replace(blobUrl)` | gateway posts back to backend; backend redirects to client return paths |
 | Complete (tabby) | create-order response is a **URL string** → `window.location.replace(url)` | deferred (CCAvenue-first decision) but contract recorded |
-| Orders list | GET `/b2b/attractions/orders/all?skip=&limit=&referenceNo=&status=&attraction=&activity=&dateFrom=&dateTo=&travellerEmail=` | response `{ result: { data: [], totalOrders } }` |
+| Orders list | GET `/b2b/attractions/orders/all?skip=&limit=&referenceNo=&status=&attraction=&activity=&dateFrom=&dateTo=&travellerEmail=` | response `{ result: { data: [], totalOrders } }`. Row shape (old AttractionOrderTable.jsx): `activities` is a SINGULAR unwound object (`activities.status`, `activities.activity.name`, counts, date); `ticketDownloadToken` + `attraction.{title,images}` at row level. No top-level orderStatus. |
 | Orders Excel | GET `/b2b/attractions/orders/all/sheet?skip=&limit=&referenceNo=&status=` | blob → orders.xlsx |
-| Order detail | GET `/b2b/attractions/orders/single/:orderId` | used by invoice page |
+| Order detail | GET `/b2b/attractions/orders/single/:orderId` | response `{ ...order, ticketDownloadToken }` (controller spreads token into root). Line items in **`activites`** (BACKEND TYPO — $group $push, controller ~L1035; old consumer AttractionInvoice.jsx maps `output.activites`). Items carry populated `activity`/`attraction` objects + `adult/child/infantActivityTotalPrice`. |
 | Invoice PDF | GET `/b2b/attractions/orders/single/:orderId/invoice` | blob |
 | Bulk tickets | `${SERVER_URL}/api/v1/download/attractions/orders/b2b/:orderId/orderItems/:activityId/tickets?token=<ticketDownloadToken>` | top-level app route, token from order item — plain link, not the b2b router |
 | Single ticket | GET `/b2b/attractions/orders/:orderId/ticket/:activityId/single/:ticketNo` | blob |
@@ -48,5 +48,6 @@ price, isPromoAdded`.
 
 - No cancel action in the agent UI (backend has cancel endpoints; old UI never calls them).
 - PaymentApproval (`/payment/approval`) is a static informational page (no API).
-- Attraction home = search + top destinations (from `/b2b/home/initial-data` destinations) — `banners`/`sections` endpoints are unused by the old app.
+- Attraction home = search + top destinations. **Initial-data comes from the B2C route `GET /home/initial-data`** (old homeSlice.js:37), not `/b2b/home/initial-data`; keys `{ countries, destinations, currencies, popularHotelCities }`; destinations render `name` + `image`. `banners`/`sections` endpoints are unused by the old app.
+- Audit (2026-06-12): every response field rendered by the new module now has controller + old-consumer line references (this doc). Timeslot fields (`EventID, StartDateTime, AdultPrice…`) verified against SlotBookingComponent.jsx; categories render `categoryName` (SearchHomePage.jsx:106); details page renders `highlights` (not description).
 - Discrepancy with doc 06 fixed: attraction checkout uses `/b2b/attractions/orders/create`, **not** the unified `/b2b/orders/create`.

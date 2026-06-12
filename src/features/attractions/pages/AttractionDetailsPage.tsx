@@ -88,12 +88,15 @@ export default function AttractionDetailsPage() {
               </div>
             </section>
 
-            {attraction.description && (
+            {/* old app renders `highlights` (DetailsCard.jsx); description as fallback */}
+            {(attraction.highlights ?? attraction.description) && (
               <section>
                 <h2 className="mb-2 text-xl font-semibold">About</h2>
                 <div
                   className="prose prose-sm max-w-none text-muted-foreground [&_a]:text-primary"
-                  dangerouslySetInnerHTML={{ __html: attraction.description }}
+                  dangerouslySetInnerHTML={{
+                    __html: (attraction.highlights ?? attraction.description)!,
+                  }}
                 />
               </section>
             )}

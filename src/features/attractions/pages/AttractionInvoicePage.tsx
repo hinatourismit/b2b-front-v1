@@ -11,21 +11,6 @@ import { Badge } from "@/components/ui/badge";
 import { formatPrice } from "@/lib/utils";
 import { apiErrorMessage } from "@/types/api";
 
-interface OrderActivity {
-  _id: string;
-  activity?: { name?: string } | string;
-  attraction?: { title?: string } | string;
-  status?: string;
-  grandTotal?: number;
-  amount?: number;
-  date?: string;
-  adultsCount?: number;
-  childrenCount?: number;
-  ticketDownloadToken?: string;
-  bookingType?: string;
-  [key: string]: unknown;
-}
-
 function saveBlob(blob: Blob, filename: string) {
   const href = URL.createObjectURL(blob);
   const link = document.createElement("a");
@@ -44,22 +29,8 @@ function saveBlob(blob: Blob, filename: string) {
  */
 export default function AttractionInvoicePage() {
   const { id } = useParams();
-  const { data, isLoading, isError } = useAttractionOrder(id);
+  const { data: order, isLoading, isError } = useAttractionOrder(id);
   const [downloadingInvoice, setDownloadingInvoice] = useState(false);
-
-  const order = data as
-    | {
-        _id: string;
-        referenceNumber?: string;
-        agentReferenceNumber?: string;
-        name?: string;
-        email?: string;
-        totalAmount?: number;
-        orderStatus?: string;
-        activities?: OrderActivity[];
-        [key: string]: unknown;
-      }
-    | undefined;
 
   const downloadInvoice = async () => {
     if (!id) return;
@@ -115,11 +86,16 @@ export default function AttractionInvoicePage() {
               </div>
 
               <div className="space-y-3">
-                {(order.activities ?? []).map((item) => {
-                  const activityName =
-                    typeof item.activity === "object" ? item.activity?.name : undefined;
-                  const attractionTitle =
-                    typeof item.attraction === "object" ? item.attraction?.title : undefined;
+                {/* line items live in `activites` (backend typo — contract);
+                    ticketDownloadToken is ORDER-level (controller spreads it
+                    into the response root) */}
+                {(order.activites ?? []).map((item) => {
+                  const itemTotal =
+                    item.grandTotal ??
+                    item.amount ??
+                    (item.adultActivityTotalPrice ?? 0) +
+                      (item.childActivityTotalPrice ?? 0) +
+                      (item.infantActivityTotalPrice ?? 0);
                   return (
                     <div
                       key={item._id}
@@ -127,22 +103,23 @@ export default function AttractionInvoicePage() {
                     >
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold">
-                          {attractionTitle ?? activityName ?? "Activity"}
+                          {item.attraction?.title ?? item.activity?.name ?? "Activity"}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {activityName}
+                          {item.activity?.name}
                           {item.date ? ` · ${new Date(item.date).toLocaleDateString()}` : ""}
+                          {item.transferType ? ` · ${item.transferType} transfer` : ""}
                           {item.status ? ` · ${item.status}` : ""}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-semibold tabular-nums">
-                          {formatPrice(item.grandTotal ?? item.amount)}
+                          {formatPrice(itemTotal)}
                         </span>
-                        {item.ticketDownloadToken && id && (
+                        {order.ticketDownloadToken && id && (
                           <Button asChild size="sm" variant="outline">
                             <a
-                              href={attractionsApi.bulkTicketsUrl(id, item._id, item.ticketDownloadToken)}
+                              href={attractionsApi.bulkTicketsUrl(id, item._id, order.ticketDownloadToken)}
                               target="_blank"
                               rel="noreferrer"
                             >

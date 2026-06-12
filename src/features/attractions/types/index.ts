@@ -203,7 +203,44 @@ export interface CreateAttractionOrderPayload {
   paymentMethod: "wallet" | "ccavenue" | "tabby";
 }
 
+/**
+ * Orders list row (old AttractionOrderTable.jsx usage): `activities` is a
+ * SINGULAR unwound object per row; status lives at activities.status;
+ * ticketDownloadToken at ROW level.
+ */
 export interface AttractionOrderListItem {
+  _id: string;
+  referenceNumber?: string;
+  agentReferenceNumber?: string;
+  name?: string;
+  email?: string;
+  phoneNumber?: string;
+  totalAmount?: number;
+  createdAt?: string;
+  ticketDownloadToken?: string;
+  attraction?: { title?: string; images?: string[] };
+  activities?: {
+    _id: string;
+    status?: string;
+    bookingType?: string;
+    date?: string;
+    adultsCount?: number;
+    childrenCount?: number;
+    infantCount?: number;
+    transferType?: string;
+    activity?: { name?: string };
+    [key: string]: unknown;
+  };
+  [key: string]: unknown;
+}
+
+/**
+ * Single-order response (b2bAttractionOrderController.js getSingleAttractionOrder):
+ * `{ ...order, ticketDownloadToken }` where line items are grouped into
+ * `activites` (BACKEND TYPO — contract; $group $push at controller). Old
+ * consumer: AttractionInvoice.jsx maps output.activites.
+ */
+export interface AttractionOrderDetail {
   _id: string;
   referenceNumber?: string;
   agentReferenceNumber?: string;
@@ -211,14 +248,26 @@ export interface AttractionOrderListItem {
   email?: string;
   totalAmount?: number;
   orderStatus?: string;
-  paymentStatus?: string;
-  createdAt?: string;
-  activities?: {
+  ticketDownloadToken?: string;
+  /** sic — backend typo */
+  activites?: {
     _id: string;
+    activity?: { name?: string };
+    attraction?: { title?: string };
     status?: string;
-    ticketDownloadToken?: string;
+    bookingType?: string;
+    date?: string;
+    adultsCount?: number;
+    childrenCount?: number;
+    infantCount?: number;
+    transferType?: string;
+    adultActivityTotalPrice?: number;
+    childActivityTotalPrice?: number;
+    infantActivityTotalPrice?: number;
+    grandTotal?: number;
+    amount?: number;
     [key: string]: unknown;
-  };
+  }[];
   [key: string]: unknown;
 }
 

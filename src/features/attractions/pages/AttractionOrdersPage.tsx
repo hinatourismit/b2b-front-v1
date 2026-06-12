@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Download, FileSpreadsheet, Loader2, Search } from "lucide-react";
+import { Download, FileSpreadsheet, Loader2, Search, Ticket } from "lucide-react";
 import { toast } from "sonner";
 import { ModuleGuard } from "@/app/guards";
 import { useAttractionOrders } from "../api/attractions.queries";
@@ -179,21 +179,41 @@ export default function AttractionOrdersPage() {
                       {order.referenceNumber ?? order.agentReferenceNumber ?? order._id.slice(-8)}
                     </TableCell>
                     <TableCell>
-                      <p>{order.name}</p>
-                      <p className="text-xs text-muted-foreground">{order.email}</p>
+                      <p className="max-w-44 truncate">
+                        {order.attraction?.title ?? order.activities?.activity?.name ?? "—"}
+                      </p>
+                      <p className="max-w-44 truncate text-xs text-muted-foreground">
+                        {order.name} · {order.email}
+                      </p>
                     </TableCell>
                     <TableCell className="font-semibold tabular-nums">
                       {formatPrice(order.totalAmount)}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={statusVariant(order.orderStatus ?? order.paymentStatus)} className="capitalize">
-                        {order.orderStatus ?? order.paymentStatus ?? "—"}
+                      {/* status lives on the unwound activities object (old table: item?.activities?.status) */}
+                      <Badge variant={statusVariant(order.activities?.status)} className="capitalize">
+                        {order.activities?.status ?? "—"}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
                       {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : "—"}
                     </TableCell>
                     <TableCell className="text-right">
+                      {order.ticketDownloadToken && order.activities?._id && (
+                        <Button asChild variant="ghost" size="sm">
+                          <a
+                            href={attractionsApi.bulkTicketsUrl(
+                              order._id,
+                              order.activities._id,
+                              order.ticketDownloadToken,
+                            )}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            <Ticket className="size-3.5" /> Tickets
+                          </a>
+                        </Button>
+                      )}
                       <Button asChild variant="ghost" size="sm">
                         <Link to={`/attractions/invoice/${order._id}`}>
                           <Download className="size-3.5" /> View

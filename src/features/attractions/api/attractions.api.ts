@@ -3,6 +3,7 @@ import { env } from "@/config/env";
 import type {
   AttractionsListResponse,
   AttractionSearchResponse,
+  AttractionOrderDetail,
   AttractionOrdersFilters,
   AttractionOrdersResponse,
   CreateAttractionOrderPayload,
@@ -66,7 +67,7 @@ export const attractionsApi = {
     (await apiClient.get(`${ORDERS}/all/sheet`, { params: filters, responseType: "blob" })).data as Blob,
 
   getSingleOrder: async (orderId: string) =>
-    (await apiClient.get(`${ORDERS}/single/${orderId}`)).data,
+    (await apiClient.get<AttractionOrderDetail>(`${ORDERS}/single/${orderId}`)).data,
 
   getInvoiceBlob: async (orderId: string) =>
     (await apiClient.get(`${ORDERS}/single/${orderId}/invoice`, { responseType: "blob" })).data as Blob,
