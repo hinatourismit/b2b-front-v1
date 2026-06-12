@@ -15,6 +15,18 @@ export interface AttractionListItem {
   [key: string]: unknown;
 }
 
+/** GET .../attraction/all response envelope (verified in controller L473). */
+export interface AttractionsListResponse {
+  attractions?: {
+    totalAttractions?: number;
+    data?: AttractionListItem[];
+  };
+  /** empty-destination branch returns { destinations: [] } instead */
+  destinations?: unknown[];
+  skip?: number;
+  limit?: number;
+}
+
 export interface TimeSlot {
   EventID?: string;
   EventName?: string;

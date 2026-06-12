@@ -15,7 +15,9 @@ export default function AttractionListingPage() {
   const { slug = "" } = useParams();
   const [category, setCategory] = useState("");
   const { data: categories } = useAttractionCategories();
-  const { data: attractions, isLoading } = useAttractionsList(slug, category);
+  const { data, isLoading } = useAttractionsList(slug, category);
+  // Envelope verified in controller: { attractions: { totalAttractions, data } }
+  const attractions = data?.attractions?.data ?? [];
 
   return (
     <ModuleGuard module="attractions">
@@ -68,7 +70,7 @@ export default function AttractionListingPage() {
               </div>
             ))}
           </div>
-        ) : attractions && attractions.length > 0 ? (
+        ) : attractions.length > 0 ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {attractions.map((item) => (
               <AttractionCard key={item._id} item={item} />

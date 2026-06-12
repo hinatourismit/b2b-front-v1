@@ -2,6 +2,7 @@ import { apiClient } from "@/lib/api-client";
 import { env } from "@/config/env";
 import type {
   AttractionListItem,
+  AttractionsListResponse,
   AttractionOrdersFilters,
   AttractionOrdersResponse,
   CreateAttractionOrderPayload,
@@ -27,7 +28,7 @@ export const attractionsApi = {
   /** Old app pins limit=100 and filters by destination slug + category id. */
   getAll: async (destination: string, category: string) =>
     (
-      await apiClient.get<AttractionListItem[]>(`${CLIENT}/all`, {
+      await apiClient.get<AttractionsListResponse>(`${CLIENT}/all`, {
         params: { limit: 100, destination, category },
       })
     ).data,
