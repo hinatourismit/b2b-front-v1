@@ -244,6 +244,7 @@ export interface AttractionOrderListItem {
   createdAt?: string;
   ticketDownloadToken?: string;
   attraction?: { title?: string; images?: string[] };
+  reseller?: { agentCode?: number };
   activities?: {
     _id: string;
     status?: string;

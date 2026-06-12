@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Download, FileSpreadsheet, Loader2, Search, Ticket } from "lucide-react";
+import { Eye, FileSpreadsheet, Loader2, Ticket } from "lucide-react";
 import { toast } from "sonner";
 import { ModuleGuard } from "@/app/guards";
 import { useAttractionOrders } from "../api/attractions.queries";
@@ -8,6 +8,7 @@ import { attractionsApi } from "../api/attractions.api";
 import type { AttractionOrdersFilters } from "../types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -28,11 +29,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatDate, formatPrice } from "@/lib/utils";
 import { apiErrorMessage } from "@/types/api";
 
-const PAGE_SIZE = 10;
-
 const EMPTY: AttractionOrdersFilters = {
   skip: 0,
-  limit: PAGE_SIZE,
+  limit: 10,
   referenceNo: "",
   status: "",
   attraction: "",
@@ -42,31 +41,35 @@ const EMPTY: AttractionOrdersFilters = {
   travellerEmail: "",
 };
 
+/** Agent-relevant statuses (user decision 2026-06-13). The list API takes a
+ *  single status value, so the combined view filters rows client-side. */
+const VISIBLE_STATUSES = ["confirmed", "booked"];
+
 function statusVariant(status: string | undefined) {
   switch (status) {
-    case "completed":
     case "confirmed":
-    case "booked":
       return "default" as const;
-    case "pending":
+    case "booked":
       return "secondary" as const;
     case "cancelled":
-    case "failed":
       return "destructive" as const;
     default:
       return "outline" as const;
   }
 }
 
-/** Only these are agent-relevant (user decision 2026-06-13). The list API
- *  takes a single status value, so "all" fetches everything and we filter
- *  rows client-side; the Excel export carries the same caveat server-side. */
-const VISIBLE_STATUSES = ["confirmed", "booked"];
-
-/** /attraction/order — same query contract as old AttractionOrder page. */
+/**
+ * /attraction/order — column and filter structure mirrors the old
+ * AttractionOrder.jsx / AttractionOrderTable.jsx exactly: Ref.No (agent ref +
+ * agent code + booking type), Activity (name + pax), Booking Date
+ * (activities.date), Purchase Date (createdAt), Price, Status, Tickets
+ * (enabled only when confirmed). referenceNo matches BOTH the agent reference
+ * and the platform reference server-side (b2bOrdersHelper.js:46 $or).
+ */
 export default function AttractionOrdersPage() {
+  // Draft = what the inputs hold; applied = what the query uses.
+  const [draft, setDraft] = useState(EMPTY);
   const [filters, setFilters] = useState<AttractionOrdersFilters>(EMPTY);
-  const [referenceInput, setReferenceInput] = useState("");
   const [downloading, setDownloading] = useState(false);
   const { data, isLoading, isFetching } = useAttractionOrders(filters);
 
@@ -76,8 +79,18 @@ export default function AttractionOrdersPage() {
       ? allRows.filter((o) => VISIBLE_STATUSES.includes(o.activities?.status ?? ""))
       : allRows;
   const totalOrders = data?.result?.totalOrders ?? 0;
-  const page = filters.skip / PAGE_SIZE;
-  const pageCount = Math.max(1, Math.ceil(totalOrders / PAGE_SIZE));
+  const page = filters.skip / filters.limit;
+  const pageCount = Math.max(1, Math.ceil(totalOrders / filters.limit));
+
+  const apply = (patch: Partial<AttractionOrdersFilters> = {}) => {
+    const next = { ...draft, ...patch, skip: 0 };
+    setDraft(next);
+    setFilters(next);
+  };
+
+  const setDraftField =
+    (key: keyof AttractionOrdersFilters) => (e: React.ChangeEvent<HTMLInputElement>) =>
+      setDraft((d) => ({ ...d, [key]: e.target.value }));
 
   const downloadSheet = async () => {
     try {
@@ -142,55 +155,135 @@ export default function AttractionOrdersPage() {
           ))}
         </div>
 
-        <div className="mb-4 flex flex-wrap items-center gap-2">
-          <form
-            className="relative"
-            onSubmit={(e) => {
-              e.preventDefault();
-              setFilters((f) => ({ ...f, skip: 0, referenceNo: referenceInput }));
-            }}
-          >
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        {/* Filter bar — same field set as the old AttractionOrder.jsx */}
+        <form
+          className="mb-5 grid grid-cols-2 gap-3 rounded-xl border bg-card p-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8"
+          onSubmit={(e) => {
+            e.preventDefault();
+            apply();
+          }}
+        >
+          <div className="space-y-1">
+            <Label className="text-xs" htmlFor="f-ref">
+              Reference No.
+            </Label>
             <Input
-              value={referenceInput}
-              onChange={(e) => setReferenceInput(e.target.value)}
-              placeholder="Reference number…"
-              className="w-56 pl-9"
+              id="f-ref"
+              placeholder="My ref / order ref"
+              value={draft.referenceNo}
+              onChange={setDraftField("referenceNo")}
             />
-          </form>
-          <Select
-            value={filters.status || "all"}
-            onValueChange={(v) => setFilters((f) => ({ ...f, skip: 0, status: v === "all" ? "" : v }))}
-          >
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Confirmed & booked</SelectItem>
-              <SelectItem value="confirmed">Confirmed</SelectItem>
-              <SelectItem value="booked">Booked</SelectItem>
-            </SelectContent>
-          </Select>
-          {isFetching && !isLoading && <Loader2 className="size-4 animate-spin text-muted-foreground" />}
-        </div>
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs" htmlFor="f-from">
+              Date from
+            </Label>
+            <Input id="f-from" type="date" value={draft.dateFrom} onChange={setDraftField("dateFrom")} />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs" htmlFor="f-to">
+              Date to
+            </Label>
+            <Input id="f-to" type="date" value={draft.dateTo} onChange={setDraftField("dateTo")} />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs" htmlFor="f-attraction">
+              Attraction
+            </Label>
+            <Input
+              id="f-attraction"
+              placeholder="Search attraction…"
+              value={draft.attraction}
+              onChange={setDraftField("attraction")}
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs" htmlFor="f-activity">
+              Activity
+            </Label>
+            <Input
+              id="f-activity"
+              placeholder="Search activity…"
+              value={draft.activity}
+              onChange={setDraftField("activity")}
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs" htmlFor="f-email">
+              Traveller email
+            </Label>
+            <Input
+              id="f-email"
+              placeholder="Search email…"
+              value={draft.travellerEmail}
+              onChange={setDraftField("travellerEmail")}
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Status</Label>
+            <Select
+              value={draft.status || "all"}
+              onValueChange={(v) => apply({ status: v === "all" ? "" : v })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Confirmed & booked</SelectItem>
+                <SelectItem value="confirmed">Confirmed</SelectItem>
+                <SelectItem value="booked">Booked</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-end gap-2">
+            <div className="flex-1 space-y-1">
+              <Label className="text-xs">Per page</Label>
+              <Select
+                value={String(draft.limit)}
+                onValueChange={(v) => apply({ limit: Number(v) })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {[10, 25, 50, 100].map((n) => (
+                    <SelectItem key={n} value={String(n)}>
+                      {n}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Button type="submit" size="sm" className="mb-0.5">
+              Apply
+            </Button>
+          </div>
+        </form>
 
-        <div className="overflow-hidden rounded-xl border bg-card">
+        {isFetching && !isLoading && (
+          <p className="mb-2 flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Loader2 className="size-3 animate-spin" /> Updating…
+          </p>
+        )}
+
+        <div className="overflow-x-auto rounded-xl border bg-card">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Reference</TableHead>
-                <TableHead>Traveller</TableHead>
-                <TableHead>Amount</TableHead>
+                <TableHead>Ref.No</TableHead>
+                <TableHead>Activity</TableHead>
+                <TableHead>Booking Date</TableHead>
+                <TableHead>Purchase Date</TableHead>
+                <TableHead>Price</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="text-right">Tickets</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
-                    {Array.from({ length: 6 }).map((_, j) => (
+                    {Array.from({ length: 7 }).map((_, j) => (
                       <TableCell key={j}>
                         <Skeleton className="h-4 w-full" />
                       </TableCell>
@@ -199,55 +292,82 @@ export default function AttractionOrdersPage() {
                 ))
               ) : orders.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="py-12 text-center text-sm text-muted-foreground">
+                  <TableCell colSpan={7} className="py-12 text-center text-sm text-muted-foreground">
                     No orders found.
                   </TableCell>
                 </TableRow>
               ) : (
                 orders.map((order) => (
                   <TableRow key={order._id}>
-                    <TableCell className="font-medium">
-                      {order.referenceNumber ?? order.agentReferenceNumber ?? order._id.slice(-8)}
-                    </TableCell>
+                    {/* Ref.No: agent's own reference + agent code + booking type
+                        (old AttractionOrderTable.jsx:26-38) */}
                     <TableCell>
-                      <p className="max-w-44 truncate">
-                        {order.attraction?.title ?? order.activities?.activity?.name ?? "—"}
+                      <p className="font-medium">{order.agentReferenceNumber ?? "—"}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {order.referenceNumber ?? ""}
+                        {order.reseller?.agentCode ? ` · #${order.reseller.agentCode}` : ""}
                       </p>
-                      <p className="max-w-44 truncate text-xs text-muted-foreground">
-                        {order.name} · {order.email}
+                      {order.activities?.bookingType && (
+                        <p className="text-xs capitalize text-muted-foreground">
+                          {order.activities.bookingType}
+                        </p>
+                      )}
+                    </TableCell>
+                    <TableCell className="min-w-52">
+                      <p className="font-medium">{order.activities?.activity?.name ?? "—"}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Adult: {order.activities?.adultsCount ?? 0}
+                        {(order.activities?.childrenCount ?? 0) > 0 &&
+                          ` · Child: ${order.activities?.childrenCount}`}
+                        {(order.activities?.infantCount ?? 0) > 0 &&
+                          ` · Infant: ${order.activities?.infantCount}`}
                       </p>
                     </TableCell>
-                    <TableCell className="font-semibold tabular-nums">
+                    <TableCell className="whitespace-nowrap text-sm">
+                      {formatDate(order.activities?.date)}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
+                      {formatDate(order.createdAt)}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap font-semibold tabular-nums">
                       {formatPrice(order.totalAmount)}
                     </TableCell>
                     <TableCell>
-                      {/* status lives on the unwound activities object (old table: item?.activities?.status) */}
                       <Badge variant={statusVariant(order.activities?.status)} className="capitalize">
                         {order.activities?.status ?? "—"}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {formatDate(order.createdAt)}
-                    </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="whitespace-nowrap text-right">
+                      {/* tickets only when confirmed — old table disabled rule (:89) */}
                       {order.ticketDownloadToken && order.activities?._id && (
-                        <Button asChild variant="ghost" size="sm">
-                          <a
-                            href={attractionsApi.bulkTicketsUrl(
-                              order._id,
-                              order.activities._id,
-                              order.ticketDownloadToken,
-                            )}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            <Ticket className="size-3.5" /> Tickets
-                          </a>
+                        <Button
+                          asChild={order.activities?.status === "confirmed"}
+                          variant="ghost"
+                          size="sm"
+                          disabled={order.activities?.status !== "confirmed"}
+                        >
+                          {order.activities?.status === "confirmed" ? (
+                            <a
+                              href={attractionsApi.bulkTicketsUrl(
+                                order._id,
+                                order.activities._id,
+                                order.ticketDownloadToken,
+                              )}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              <Ticket className="size-3.5" /> Tickets
+                            </a>
+                          ) : (
+                            <span>
+                              <Ticket className="size-3.5" /> Tickets
+                            </span>
+                          )}
                         </Button>
                       )}
                       <Button asChild variant="ghost" size="sm">
                         <Link to={`/attractions/invoice/${order._id}`}>
-                          <Download className="size-3.5" /> View
+                          <Eye className="size-3.5" /> View
                         </Link>
                       </Button>
                     </TableCell>
@@ -267,7 +387,9 @@ export default function AttractionOrdersPage() {
               variant="outline"
               size="sm"
               disabled={page === 0}
-              onClick={() => setFilters((f) => ({ ...f, skip: Math.max(0, f.skip - PAGE_SIZE) }))}
+              onClick={() =>
+                setFilters((f) => ({ ...f, skip: Math.max(0, f.skip - f.limit) }))
+              }
             >
               Previous
             </Button>
@@ -278,7 +400,7 @@ export default function AttractionOrdersPage() {
               variant="outline"
               size="sm"
               disabled={page + 1 >= pageCount}
-              onClick={() => setFilters((f) => ({ ...f, skip: f.skip + PAGE_SIZE }))}
+              onClick={() => setFilters((f) => ({ ...f, skip: f.skip + f.limit }))}
             >
               Next
             </Button>
