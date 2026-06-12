@@ -40,10 +40,13 @@ export interface AttractionsListResponse {
 
 export interface TimeSlot {
   EventID?: string;
+  EventTypeID?: string;
   EventName?: string;
   StartDateTime?: string;
   EndDateTime?: string;
-  Available?: string | number;
+  ResourceID?: string;
+  Status?: string;
+  Available?: string;
   AdultPrice?: number;
   ChildPrice?: number;
   [key: string]: unknown;
@@ -179,6 +182,7 @@ export interface TimeSlotPayload {
   activityId: string;
 }
 
+/** Shaped to b2bAttractionOrder.schema.js exactly — Joi rejects unknown keys. */
 export interface SelectedActivityPayload {
   activity: string;
   date: string;
@@ -187,9 +191,23 @@ export interface SelectedActivityPayload {
   infantCount: number;
   hoursCount: number | "";
   transferType: string;
-  slot?: TimeSlot | null;
+  /** only the 10 whitelisted slot keys */
+  slot?: Pick<
+    TimeSlot,
+    | "EventID"
+    | "EventTypeID"
+    | "EventName"
+    | "StartDateTime"
+    | "EndDateTime"
+    | "ResourceID"
+    | "Status"
+    | "AdultPrice"
+    | "ChildPrice"
+    | "Available"
+  > | null;
   isPromoAdded?: boolean;
-  privateTransfers?: PrivateTransfer[];
+  /** required shape when transferType === "private" */
+  privateTransfers?: { vehicleId: string; count: number }[];
 }
 
 export interface CreateAttractionOrderPayload {

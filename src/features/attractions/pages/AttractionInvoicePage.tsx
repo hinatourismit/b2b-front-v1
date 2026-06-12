@@ -8,7 +8,7 @@ import { attractionsApi } from "../api/attractions.api";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { formatPrice } from "@/lib/utils";
+import { formatDate, formatPrice } from "@/lib/utils";
 import { apiErrorMessage } from "@/types/api";
 
 function saveBlob(blob: Blob, filename: string) {
@@ -107,7 +107,7 @@ export default function AttractionInvoicePage() {
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {item.activity?.name}
-                          {item.date ? ` · ${new Date(item.date).toLocaleDateString()}` : ""}
+                          {item.date ? ` · ${formatDate(item.date)}` : ""}
                           {item.transferType ? ` · ${item.transferType} transfer` : ""}
                           {item.status ? ` · ${item.status}` : ""}
                         </p>

@@ -27,7 +27,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn, formatDate, formatPrice } from "@/lib/utils";
 import { apiErrorMessage } from "@/types/api";
 import type { SelectedActivityPayload } from "../types";
 
@@ -35,7 +35,8 @@ const leadSchema = z.object({
   firstname: z.string().min(1, "Required"),
   lastname: z.string().min(1, "Required"),
   email: z.string().email("Enter a valid email"),
-  phone: z.string().min(1, "Required"),
+  // backend Joi: phoneNumber must be a number — digits only
+  phone: z.string().regex(/^\d{5,15}$/, "Digits only (no + or spaces)"),
   country: z.string().min(1, "Required"),
   agentReferenceNumber: z.string().min(1, "Agent reference number required"),
 });
@@ -76,21 +77,49 @@ export default function AttractionCheckoutPage() {
       return;
     }
 
-    const selectedActivities: SelectedActivityPayload[] = items.map((item) => ({
-      activity: item._id,
-      date: item.date,
-      adultsCount: item.adult,
-      childrenCount: item.child,
-      infantCount: item.infant,
-      hoursCount: item.hourCount ? item.hourCount : "",
-      transferType: item.transfer,
-      slot: item.selectedTimeSlot,
-      isPromoAdded: item.isPromoAdded,
-      privateTransfers:
+    // Payload shaped to b2bAttractionOrder.schema.js exactly: slot allows only
+    // whitelisted keys; privateTransfers items are { vehicleId, count } with
+    // vehicleId = pvtTransferId (old ActivityComponent.jsx:370).
+    const selectedActivities: SelectedActivityPayload[] = items.map((item) => {
+      const slot = item.selectedTimeSlot
+        ? {
+            EventID: item.selectedTimeSlot.EventID,
+            EventTypeID: item.selectedTimeSlot.EventTypeID,
+            EventName: item.selectedTimeSlot.EventName,
+            StartDateTime: item.selectedTimeSlot.StartDateTime,
+            EndDateTime: item.selectedTimeSlot.EndDateTime,
+            ResourceID: item.selectedTimeSlot.ResourceID,
+            Status: item.selectedTimeSlot.Status,
+            AdultPrice: item.selectedTimeSlot.AdultPrice,
+            ChildPrice: item.selectedTimeSlot.ChildPrice,
+            Available: item.selectedTimeSlot.Available,
+          }
+        : null;
+
+      const vehicles =
         Array.isArray(item.selectedVehicle) && item.selectedVehicle.length > 0
           ? item.selectedVehicle
-          : item.vehicle,
-    }));
+          : (item.vehicle ?? []);
+
+      return {
+        activity: item._id,
+        date: item.date,
+        adultsCount: item.adult,
+        childrenCount: item.child,
+        infantCount: item.infant,
+        hoursCount: item.hourCount ? item.hourCount : "",
+        transferType: item.transfer,
+        slot,
+        isPromoAdded: item.isPromoAdded ?? false,
+        privateTransfers:
+          item.transfer === "private"
+            ? vehicles.map((v) => ({
+                vehicleId: (v.pvtTransferId ?? v._id) as string,
+                count: v.count ?? 0,
+              }))
+            : undefined,
+      };
+    });
 
     createOrder.mutate(
       {
@@ -168,7 +197,7 @@ export default function AttractionCheckoutPage() {
                     <p className="truncate text-xs text-muted-foreground">{item.name}</p>
                     <p className="mt-1 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
-                        <CalendarDays className="size-3" /> {item.date}
+                        <CalendarDays className="size-3" /> {formatDate(item.date)}
                       </span>
                       <span className="flex items-center gap-1">
                         <Users className="size-3" />

@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatPrice } from "@/lib/utils";
+import { formatDate, formatPrice } from "@/lib/utils";
 import { apiErrorMessage } from "@/types/api";
 
 const PAGE_SIZE = 10;
@@ -196,7 +196,7 @@ export default function AttractionOrdersPage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : "—"}
+                      {formatDate(order.createdAt)}
                     </TableCell>
                     <TableCell className="text-right">
                       {order.ticketDownloadToken && order.activities?._id && (
