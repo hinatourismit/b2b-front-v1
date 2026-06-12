@@ -1,6 +1,16 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { Link } from "react-router-dom";
-import { Eye, FileSpreadsheet, Loader2, Ticket } from "lucide-react";
+import {
+  ChevronDown,
+  Eye,
+  FileSpreadsheet,
+  Loader2,
+  Mail,
+  MapPin,
+  Phone,
+  Ticket,
+  User,
+} from "lucide-react";
 import { toast } from "sonner";
 import { ModuleGuard } from "@/app/guards";
 import { useAttractionOrders } from "../api/attractions.queries";
@@ -26,8 +36,9 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatDate, formatPrice } from "@/lib/utils";
+import { cn, formatDate, formatPrice } from "@/lib/utils";
 import { apiErrorMessage } from "@/types/api";
+import { env } from "@/config/env";
 
 const EMPTY: AttractionOrdersFilters = {
   skip: 0,
@@ -71,6 +82,7 @@ export default function AttractionOrdersPage() {
   const [draft, setDraft] = useState(EMPTY);
   const [filters, setFilters] = useState<AttractionOrdersFilters>(EMPTY);
   const [downloading, setDownloading] = useState(false);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const { data, isLoading, isFetching } = useAttractionOrders(filters);
 
   const allRows = data?.result?.data ?? [];
@@ -232,6 +244,7 @@ export default function AttractionOrdersPage() {
                 <SelectItem value="all">Confirmed & booked</SelectItem>
                 <SelectItem value="confirmed">Confirmed</SelectItem>
                 <SelectItem value="booked">Booked</SelectItem>
+                <SelectItem value="cancelled">Cancelled</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -256,6 +269,18 @@ export default function AttractionOrdersPage() {
             </div>
             <Button type="submit" size="sm" className="mb-0.5">
               Apply
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="mb-0.5"
+              onClick={() => {
+                setDraft(EMPTY);
+                setFilters(EMPTY);
+              }}
+            >
+              Clear
             </Button>
           </div>
         </form>
@@ -298,7 +323,13 @@ export default function AttractionOrdersPage() {
                 </TableRow>
               ) : (
                 orders.map((order) => (
-                  <TableRow key={order._id}>
+                  <Fragment key={order._id}>
+                  <TableRow
+                    onClick={() =>
+                      setExpandedId((id) => (id === order._id ? null : order._id))
+                    }
+                    className="cursor-pointer"
+                  >
                     {/* Ref.No: agent's own reference + agent code + booking type
                         (old AttractionOrderTable.jsx:26-38) */}
                     <TableCell>
@@ -345,6 +376,7 @@ export default function AttractionOrdersPage() {
                           variant="ghost"
                           size="sm"
                           disabled={order.activities?.status !== "confirmed"}
+                          onClick={(e) => e.stopPropagation()}
                         >
                           {order.activities?.status === "confirmed" ? (
                             <a
@@ -365,13 +397,104 @@ export default function AttractionOrdersPage() {
                           )}
                         </Button>
                       )}
-                      <Button asChild variant="ghost" size="sm">
+                      <Button asChild variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
                         <Link to={`/attractions/invoice/${order._id}`}>
                           <Eye className="size-3.5" /> View
                         </Link>
                       </Button>
+                      <ChevronDown
+                        className={cn(
+                          "ml-1 inline size-4 text-muted-foreground transition-transform",
+                          expandedId === order._id && "rotate-180",
+                        )}
+                      />
                     </TableCell>
                   </TableRow>
+
+                  {/* Expanded detail — mirrors old AttractionOrderTable expanded
+                      section: image + attraction/activity/date, traveller block,
+                      order block */}
+                  {expandedId === order._id && (
+                    <TableRow className="bg-secondary/40 hover:bg-secondary/40">
+                      <TableCell colSpan={7}>
+                        <div className="flex flex-wrap items-start gap-10 px-2 py-3">
+                          <div className="flex items-start gap-4">
+                            {order.attraction?.images?.[0] && (
+                              <img
+                                src={
+                                  String(order.attraction.images[0]).startsWith("http")
+                                    ? String(order.attraction.images[0])
+                                    : `${env.VITE_API_URL}/${String(order.attraction.images[0]).replace(/^\//, "")}`
+                                }
+                                alt=""
+                                className="h-20 w-32 rounded-lg object-cover"
+                              />
+                            )}
+                            <div>
+                              <p className="font-semibold">{order.attraction?.title}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {order.activities?.activity?.name}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {formatDate(order.activities?.date)}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="text-sm">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                              Traveller
+                            </p>
+                            <p className="mt-1 flex items-center gap-1.5 capitalize">
+                              <User className="size-3.5" /> {order.name ?? "—"}
+                            </p>
+                            <p className="mt-1 flex items-center gap-1.5">
+                              <Mail className="size-3.5" /> {order.email ?? "—"}
+                            </p>
+                            <p className="mt-1 flex items-center gap-1.5">
+                              <Phone className="size-3.5" /> {order.phoneNumber ?? "—"}
+                            </p>
+                            {order.country?.countryName && (
+                              <p className="mt-1 flex items-center gap-1.5 capitalize">
+                                <MapPin className="size-3.5" /> {order.country.countryName}
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="text-sm">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                              Order
+                            </p>
+                            <p className="mt-1">
+                              Reference:{" "}
+                              <span className="font-medium">{order.referenceNumber ?? "—"}</span>
+                            </p>
+                            {order.activities?.transferType && (
+                              <p className="mt-1 capitalize">
+                                Transfer: {order.activities.transferType}
+                              </p>
+                            )}
+                            <p className="mt-1">
+                              Total:{" "}
+                              <span className="font-semibold tabular-nums">
+                                {formatPrice(order.totalAmount)}
+                              </span>
+                            </p>
+                            <p className="mt-1 capitalize">
+                              Status:{" "}
+                              <Badge
+                                variant={statusVariant(order.activities?.status)}
+                                className="capitalize"
+                              >
+                                {order.activities?.status ?? "—"}
+                              </Badge>
+                            </p>
+                          </div>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                  </Fragment>
                 ))
               )}
             </TableBody>
