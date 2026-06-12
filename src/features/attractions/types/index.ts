@@ -15,6 +15,17 @@ export interface AttractionListItem {
   [key: string]: unknown;
 }
 
+/** GET .../search/list response (controller: searchDestinationAndAtt). */
+export interface AttractionSearchResponse {
+  attractions?: { _id: string; title?: string; slug?: string; destination?: { name?: string } }[];
+  /** backend typo — contract */
+  totoalAttraction?: number;
+  destinations?: { _id: string; name?: string; slug?: string }[];
+  totalDestination?: number;
+  standAlone?: unknown[];
+  totalStandAlone?: number;
+}
+
 /** GET .../attraction/all response envelope (verified in controller L473). */
 export interface AttractionsListResponse {
   attractions?: {

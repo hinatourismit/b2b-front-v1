@@ -1,8 +1,8 @@
 import { apiClient } from "@/lib/api-client";
 import { env } from "@/config/env";
 import type {
-  AttractionListItem,
   AttractionsListResponse,
+  AttractionSearchResponse,
   AttractionOrdersFilters,
   AttractionOrdersResponse,
   CreateAttractionOrderPayload,
@@ -19,7 +19,8 @@ const ORDERS = "/b2b/attractions/orders";
 
 export const attractionsApi = {
   searchList: async (search: string) =>
-    (await apiClient.get<AttractionListItem[]>(`${CLIENT}/search/list`, { params: { search } })).data,
+    (await apiClient.get<AttractionSearchResponse>(`${CLIENT}/search/list`, { params: { search } }))
+      .data,
 
   /** Old app: B2C categories endpoint, no /b2b prefix — contract. */
   getCategories: async () =>
