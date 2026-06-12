@@ -1,6 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CalendarDays, Clock3, Loader2, Minus, Plus, ShoppingCart } from "lucide-react";
+import {
+  CalendarDays,
+  Clock3,
+  Loader2,
+  Minus,
+  Plus,
+  ShoppingCart,
+  TriangleAlert,
+} from "lucide-react";
 import { toast } from "sonner";
 import type {
   Activity,
@@ -203,6 +211,14 @@ export function ActivityConfigurator({
   );
   const ticketPortion = Math.max(0, (privatePricing?.totalPrice ?? 0) - defaultVehicleTotal);
 
+  // Capacity check: selected vehicles must seat all adults + children.
+  const paxCount = adult + child;
+  const selectedCapacity = vehicles.reduce(
+    (acc, v) => acc + (v.count ?? 0) * (v.maxCapacity ?? 0),
+    0,
+  );
+  const capacityShort = transfer === "private" && selectedCapacity < paxCount;
+
   // Timeslot products price from the selected slot: adult*AdultPrice +
   // child*ChildPrice (old summary table, SlotBookingComponent.jsx:232).
   const slotTotal = selectedSlot
@@ -221,6 +237,12 @@ export function ActivityConfigurator({
     }
     if (activity.isTimeSlot && !selectedSlot) {
       toast.error("Select a time slot");
+      return;
+    }
+    if (capacityShort) {
+      toast.error("Not enough vehicle capacity", {
+        description: `Selected vehicles seat ${selectedCapacity}, but you have ${paxCount} travellers. Add more vehicles or a larger one.`,
+      });
       return;
     }
     const item: CartItem = {
@@ -331,7 +353,19 @@ export function ActivityConfigurator({
 
       {transfer === "private" && vehicleOptions.length > 0 && (
         <div className="mt-4 space-y-2 rounded-lg bg-secondary/60 p-3">
-          <p className="text-xs font-semibold text-muted-foreground">Private vehicles</p>
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-semibold text-muted-foreground">Private vehicles</p>
+            <p className="text-[11px] text-muted-foreground">
+              Capacity {selectedCapacity} / {paxCount} travellers
+            </p>
+          </div>
+          {capacityShort && (
+            <p className="flex items-center gap-1.5 rounded-md bg-warning/15 px-2.5 py-1.5 text-xs font-medium text-amber-700">
+              <TriangleAlert className="size-3.5 shrink-0" />
+              Selected vehicles seat {selectedCapacity}, but you have {paxCount} travellers — add
+              more vehicles or choose a larger one.
+            </p>
+          )}
           {vehicleOptions.map((v, i) => {
             const vid = v._id ?? v.pvtTransferId ?? v.name;
             const current =
