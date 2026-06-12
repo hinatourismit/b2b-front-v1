@@ -38,6 +38,11 @@ function uaeToday(): string {
 }
 
 
+/**
+ * Stepper with a typeable value — B2B orders can have 100+ pax, so direct
+ * entry matters. Empty input is allowed while typing and resolves to min on
+ * blur.
+ */
 function Counter({
   value,
   onChange,
@@ -47,21 +52,45 @@ function Counter({
   onChange: (v: number) => void;
   min?: number;
 }) {
+  const [draft, setDraft] = useState<string | null>(null);
+
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1.5">
       <button
         type="button"
-        onClick={() => onChange(Math.max(min, value - 1))}
-        className="flex size-7 items-center justify-center rounded-full border hover:bg-accent"
+        onClick={() => {
+          setDraft(null);
+          onChange(Math.max(min, value - 1));
+        }}
+        className="flex size-7 shrink-0 items-center justify-center rounded-full border hover:bg-accent"
         aria-label="decrease"
       >
         <Minus className="size-3.5" />
       </button>
-      <span className="w-6 text-center text-sm font-semibold tabular-nums">{value}</span>
+      <input
+        type="text"
+        inputMode="numeric"
+        value={draft ?? String(value)}
+        onChange={(e) => {
+          const raw = e.target.value.replace(/\D/g, "").slice(0, 4);
+          setDraft(raw);
+          if (raw !== "") onChange(Math.max(min, Number(raw)));
+        }}
+        onBlur={() => {
+          if (draft === "") onChange(min);
+          setDraft(null);
+        }}
+        onFocus={(e) => e.target.select()}
+        className="h-7 w-12 rounded-md border bg-card text-center text-sm font-semibold tabular-nums outline-none focus:border-ring"
+        aria-label="count"
+      />
       <button
         type="button"
-        onClick={() => onChange(value + 1)}
-        className="flex size-7 items-center justify-center rounded-full border hover:bg-accent"
+        onClick={() => {
+          setDraft(null);
+          onChange(value + 1);
+        }}
+        className="flex size-7 shrink-0 items-center justify-center rounded-full border hover:bg-accent"
         aria-label="increase"
       >
         <Plus className="size-3.5" />
