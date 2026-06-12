@@ -80,6 +80,11 @@ export interface Activity {
   infantTicketCount?: number;
   sharedTransferPrice?: number;
   privateTransfers?: PrivateTransfer[];
+  isPrivateTransferAvailable?: boolean;
+  isSharedTransferAvailable?: boolean;
+  /** present on activities from the details/listing responses; the price
+   *  recheck returns a fresh copy — dropdown options derive from it */
+  pricing?: PricingEntry[];
   isVat?: boolean;
   vat?: number;
   isPromoCode?: boolean;

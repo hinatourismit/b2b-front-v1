@@ -89,13 +89,19 @@ export function ActivityConfigurator({
   const [child, setChild] = useState(0);
   const [infant, setInfant] = useState(0);
   const [hourCount, setHourCount] = useState(activity.base === "hourly" ? 1 : 0);
-  const [transfer, setTransfer] = useState<string>(
-    activity.activityType === "transfer" ? "shared" : "without",
-  );
+  // Default transfer per old ActivityComponent.jsx:538-566: non-transfer →
+  // "without"; else private if available, else shared.
+  const [transfer, setTransfer] = useState<string>(() => {
+    if (activity.activityType !== "transfer") return "without";
+    if (activity.isPrivateTransferAvailable && activity.privateTransfers) return "private";
+    if (activity.isSharedTransferAvailable && activity.sharedTransferPrice) return "shared";
+    return "without";
+  });
   const [vehicles, setVehicles] = useState<PrivateTransfer[]>([]);
   const [slots, setSlots] = useState<TimeSlot[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
-  const [pricing, setPricing] = useState<PricingEntry[]>([]);
+  // Activities arrive with a pricing[] array; the price recheck replaces it.
+  const [pricing, setPricing] = useState<PricingEntry[]>(activity.pricing ?? []);
 
   const debounce = useRef<number>(0);
 
@@ -148,6 +154,18 @@ export function ActivityConfigurator({
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [date, activity._id]);
+
+  // Dropdown options come from pricing[].transferType (old active code,
+  // ActivityComponent.jsx:1068-1075 — the hardcoded list is commented out there).
+  const transferOptions = [...new Set(pricing.map((p) => p.transferType).filter(Boolean))] as string[];
+
+  // Keep the selection valid for whatever options the pricing actually offers.
+  useEffect(() => {
+    if (transferOptions.length > 0 && !transferOptions.includes(transfer)) {
+      setTransfer(transferOptions[0]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [transferOptions.join("|")]);
 
   // Old-app render rule (ActivityComponent.jsx:2077): the entry in pricing[]
   // whose transferType matches the current selection.
@@ -241,7 +259,7 @@ export function ActivityConfigurator({
           />
         </div>
 
-        {activity.activityType === "transfer" && (
+        {transferOptions.length > 0 && (
           <div>
             <label className="mb-1 block text-xs font-medium text-muted-foreground">Transfer</label>
             <Select value={transfer} onValueChange={setTransfer}>
@@ -249,11 +267,17 @@ export function ActivityConfigurator({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="without">Without transfer</SelectItem>
-                <SelectItem value="shared">Shared transfer</SelectItem>
-                {(activity.privateTransfers?.length ?? 0) > 0 && (
-                  <SelectItem value="private">Private transfer</SelectItem>
-                )}
+                {transferOptions.map((opt) => (
+                  <SelectItem key={opt} value={opt}>
+                    {opt === "without"
+                      ? "Ticket only"
+                      : opt === "shared"
+                        ? "Shared transfer"
+                        : opt === "private"
+                          ? "Private transfer"
+                          : opt}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
