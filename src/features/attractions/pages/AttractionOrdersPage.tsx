@@ -169,7 +169,7 @@ export default function AttractionOrdersPage() {
 
         {/* Filter bar — same field set as the old AttractionOrder.jsx */}
         <form
-          className="mb-5 grid grid-cols-2 gap-3 rounded-xl border bg-card p-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8"
+          className="mb-5 grid grid-cols-1 gap-3 rounded-xl border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4"
           onSubmit={(e) => {
             e.preventDefault();
             apply();
@@ -248,39 +248,37 @@ export default function AttractionOrdersPage() {
               </SelectContent>
             </Select>
           </div>
-          <div className="flex items-end gap-2">
-            <div className="flex-1 space-y-1">
-              <Label className="text-xs">Per page</Label>
-              <Select
-                value={String(draft.limit)}
-                onValueChange={(v) => apply({ limit: Number(v) })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {[10, 25, 50, 100].map((n) => (
-                    <SelectItem key={n} value={String(n)}>
-                      {n}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <Button type="submit" size="sm" className="mb-0.5">
-              Apply
-            </Button>
+          <div className="space-y-1">
+            <Label className="text-xs">Per page</Label>
+            <Select value={String(draft.limit)} onValueChange={(v) => apply({ limit: Number(v) })}>
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {[10, 25, 50, 100].map((n) => (
+                  <SelectItem key={n} value={String(n)}>
+                    {n}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* actions row spans the full width below the fields */}
+          <div className="col-span-full flex justify-end gap-2 border-t pt-3">
             <Button
               type="button"
               variant="ghost"
               size="sm"
-              className="mb-0.5"
               onClick={() => {
                 setDraft(EMPTY);
                 setFilters(EMPTY);
               }}
             >
-              Clear
+              Clear filters
+            </Button>
+            <Button type="submit" size="sm">
+              Apply filters
             </Button>
           </div>
         </form>
