@@ -167,6 +167,8 @@ export interface CartItem extends Activity {
   /** display helpers carried by the old app */
   attractionTitle?: string;
   attractionImage?: string;
+  /** stored at add-to-cart time for the edit link back to details */
+  attractionId?: string;
 }
 
 export interface PriceCheckPayload {

@@ -248,16 +248,23 @@ export default function AttractionCheckoutPage() {
                         </span>
                       ) : null}
                     </div>
-                    {typeof item.attraction === "string" && (
-                      <Link
-                        to={`/attractions/details/${item.attraction}`}
-                        className="text-muted-foreground hover:text-primary"
-                        aria-label="Edit selection"
-                        title="Edit"
-                      >
-                        <Pencil className="size-4" />
-                      </Link>
-                    )}
+                    {(() => {
+                      const editId =
+                        item.attractionId ??
+                        (typeof item.attraction === "string"
+                          ? item.attraction
+                          : (item.attraction as { _id?: string } | undefined)?._id);
+                      return editId ? (
+                        <Link
+                          to={`/attractions/details/${editId}`}
+                          className="text-muted-foreground hover:text-primary"
+                          aria-label="Edit selection"
+                          title="Edit"
+                        >
+                          <Pencil className="size-4" />
+                        </Link>
+                      ) : null;
+                    })()}
                     <button
                       onClick={() => removeItem(item._id)}
                       className="text-muted-foreground hover:text-destructive"

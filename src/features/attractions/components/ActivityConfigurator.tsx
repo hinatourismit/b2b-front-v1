@@ -291,6 +291,7 @@ export function ActivityConfigurator({
       isPromoAdded: false,
       attractionTitle: attraction.title,
       attractionImage: attraction.images?.[0],
+      attractionId: attraction._id,
     };
     addItem(item);
     toast.success("Added to cart", {
