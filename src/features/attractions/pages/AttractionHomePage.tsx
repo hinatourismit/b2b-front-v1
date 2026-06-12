@@ -61,7 +61,9 @@ export default function AttractionHomePage() {
                 return (
                   <Link
                     key={d._id}
-                    to={`/attractions/${d.slug ?? d.name}`}
+                    // Old app navigates with the destination NAME (spaces and
+                    // all) — the backend matches findOne({ name }) exactly.
+                    to={`/attractions/${encodeURIComponent(d.name!)}`}
                     className="group relative aspect-[5/4] overflow-hidden rounded-xl border bg-secondary"
                   >
                     {img ? (

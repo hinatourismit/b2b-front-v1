@@ -26,7 +26,7 @@ export default function AttractionListingPage() {
 
         <div className="mb-6 flex items-center justify-between gap-4">
           <h1 className="text-2xl font-semibold capitalize tracking-tight">
-            Experiences in {slug.replaceAll("-", " ")}
+            Experiences in {slug}
           </h1>
         </div>
 

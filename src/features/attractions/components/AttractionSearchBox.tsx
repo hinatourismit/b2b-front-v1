@@ -25,8 +25,9 @@ export function AttractionSearchBox({ className }: { className?: string }) {
 
   const go = (item: (typeof results)[number]) => {
     setOpen(false);
-    // Destination suggestions carry a slug/name; attractions carry _id.
-    if (item.slug && !item.title) navigate(`/attractions/${item.slug}`);
+    // Old-app navigation: destinations by NAME (backend matches name exactly),
+    // attractions by _id to the details page.
+    if (item.name && !item.title) navigate(`/attractions/${encodeURIComponent(item.name)}`);
     else if (item._id) navigate(`/attractions/details/${item._id}`);
   };
 
