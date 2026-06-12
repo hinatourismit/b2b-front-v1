@@ -29,14 +29,18 @@ function CardTopUp({ onDone }: { onDone: () => void }) {
   const [amount, setAmount] = useState("");
   const cardDeposit = useCardDeposit();
   const value = Number(amount) || 0;
-  const fee = value * CARD_FEE_RATE;
+  // Backend (b2bWalletDepositController.js:28): gateway charges the sent
+  // amount and credits amount − 3% to the wallet. Gross-up so the agent's
+  // wallet receives exactly what they typed.
+  const charged = Math.round((value / (1 - CARD_FEE_RATE)) * 100) / 100;
+  const fee = Math.round((charged - value) * 100) / 100;
 
   const submit = () => {
     if (value <= 0) {
       toast.error("Enter a valid amount");
       return;
     }
-    cardDeposit.mutate(value, {
+    cardDeposit.mutate(charged, {
       onSuccess: (html) => {
         // Old-app behavior (CCAvenuePaymentComponent.jsx:32): response is an
         // HTML page → open it for the gateway flow.
@@ -62,7 +66,7 @@ function CardTopUp({ onDone }: { onDone: () => void }) {
       </div>
       <div className="space-y-1 rounded-lg bg-secondary/60 p-3 text-sm">
         <div className="flex justify-between text-muted-foreground">
-          <span>Top-up amount</span>
+          <span>Credited to wallet</span>
           <span className="tabular-nums">{formatPrice(value)}</span>
         </div>
         <div className="flex justify-between text-muted-foreground">
@@ -71,7 +75,7 @@ function CardTopUp({ onDone }: { onDone: () => void }) {
         </div>
         <div className="flex justify-between border-t pt-1 font-semibold">
           <span>Charged to card</span>
-          <span className="tabular-nums">{formatPrice(value + fee)}</span>
+          <span className="tabular-nums">{formatPrice(charged)}</span>
         </div>
       </div>
       <Button className="w-full" onClick={submit} disabled={cardDeposit.isPending}>

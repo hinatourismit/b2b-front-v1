@@ -81,9 +81,12 @@ export default function AttractionCheckoutPage() {
     0,
   );
   const grandTotal = total(); // subtotal + VAT
-  const CARD_FEE_RATE = 0.03;
-  const cardFee = payBy === "ccavenue" ? grandTotal * CARD_FEE_RATE : 0;
-  const payableTotal = grandTotal + cardFee;
+  // No card surcharge here: the backend computes the order total itself and
+  // the gateway charges exactly that (verified — no fee logic in the
+  // attraction order controller/helpers). Adding 3% on card checkout needs a
+  // backend change; the wallet top-up fee works because that controller
+  // deducts the fee from the credited amount.
+  const payableTotal = grandTotal;
 
   // Backend rule (checkWalletBalance.js): spendable = balance + (creditAmount
   // - creditUsed). Credit lets agents pay even with zero cash balance.
@@ -373,7 +376,7 @@ export default function AttractionCheckoutPage() {
                   )}
                 >
                   <span className="font-medium">Card (CCAvenue)</span>
-                  <span className="text-xs text-muted-foreground">+3% card charge</span>
+                  <span className="text-xs text-muted-foreground">redirects to gateway</span>
                 </button>
               </div>
 
@@ -386,12 +389,6 @@ export default function AttractionCheckoutPage() {
                   <div className="flex justify-between text-muted-foreground">
                     <span>VAT</span>
                     <span className="tabular-nums">{formatPrice(vatTotal)}</span>
-                  </div>
-                )}
-                {cardFee > 0 && (
-                  <div className="flex justify-between text-muted-foreground">
-                    <span>Card charge (3%)</span>
-                    <span className="tabular-nums">{formatPrice(cardFee)}</span>
                   </div>
                 )}
                 <div className="flex justify-between border-t pt-1.5 font-semibold">
