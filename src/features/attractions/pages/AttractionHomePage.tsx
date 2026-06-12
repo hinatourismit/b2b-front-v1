@@ -31,8 +31,9 @@ export default function AttractionHomePage() {
   return (
     <ModuleGuard module="attractions">
       <div>
-        <section className="grain relative overflow-hidden border-b bg-[linear-gradient(160deg,oklch(0.32_0.06_196),oklch(0.42_0.075_192))] py-16 text-primary-foreground">
-          <div className="mx-auto max-w-3xl px-4 text-center">
+        {/* no overflow-hidden here — it would clip the search dropdown */}
+        <section className="grain relative z-20 border-b bg-[linear-gradient(160deg,oklch(0.32_0.06_196),oklch(0.42_0.075_192))] py-16 text-primary-foreground">
+          <div className="relative z-10 mx-auto max-w-3xl px-4 text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">
               Attractions & Experiences
             </p>

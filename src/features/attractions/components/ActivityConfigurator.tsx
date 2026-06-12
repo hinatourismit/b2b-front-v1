@@ -17,6 +17,11 @@ import {
 import { cn, formatPrice } from "@/lib/utils";
 import { apiErrorMessage } from "@/types/api";
 
+/** Today in the UAE (Asia/Dubai), formatted YYYY-MM-DD for date inputs/API. */
+function uaeToday(): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Dubai" }).format(new Date());
+}
+
 function Counter({
   value,
   onChange,
@@ -67,14 +72,11 @@ export function ActivityConfigurator({
   const priceCheck = usePriceCheck();
   const timeSlots = useTimeSlots();
 
-  const defaultAdult =
-    (activity.adultTicketCount ?? 0) > 0 ||
-    attraction.bookingType === "booking" ||
-    attraction.isApiConnected
-      ? 1
-      : 0;
+  // Defaults (user decision 2026-06-12): adult 1 + today's UAE date, so the
+  // price check fires immediately on page load.
+  const defaultAdult = 1;
 
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState(uaeToday());
   const [adult, setAdult] = useState(defaultAdult);
   const [child, setChild] = useState(0);
   const [infant, setInfant] = useState(0);
@@ -212,7 +214,7 @@ export function ActivityConfigurator({
           <Input
             type="date"
             value={date}
-            min={new Date().toISOString().split("T")[0]}
+            min={uaeToday()}
             onChange={(e) => setDate(e.target.value)}
           />
         </div>

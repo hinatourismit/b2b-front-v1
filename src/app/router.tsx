@@ -49,8 +49,10 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
-      // Module home placeholders — replaced as Phase B/C land.
-      { index: true, element: suspense(<ModulePlaceholderPage module="hotels" />) },
+      // Attractions is the landing page (user decision 2026-06-12); hotels
+      // moves to /hotel until Phase B1 lands.
+      { index: true, element: suspense(<AttractionHomePage />) },
+      { path: "hotel", element: suspense(<ModulePlaceholderPage module="hotels" />) },
 
       // Attractions (Phase B2) — paths mirror the old portal exactly
       { path: "attraction", element: suspense(<AttractionHomePage />) },

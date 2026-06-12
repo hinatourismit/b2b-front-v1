@@ -33,19 +33,21 @@ export interface ModuleConfig {
 }
 
 export const MODULES = {
-  hotels: {
-    flag: "showHotel",
-    label: "Hotels",
-    icon: Building2,
-    home: "/",
-    priority: 1,
-    enabled: true,
-  },
+  // Attractions is the primary module/home page (user decision 2026-06-12);
+  // hotels lives at /hotel until Phase B1 replaces it.
   attractions: {
     flag: "showAttraction",
     label: "Attractions",
     icon: FerrisWheel,
-    home: "/attraction",
+    home: "/",
+    priority: 1,
+    enabled: true,
+  },
+  hotels: {
+    flag: "showHotel",
+    label: "Hotels",
+    icon: Building2,
+    home: "/hotel",
     priority: 2,
     enabled: true,
   },

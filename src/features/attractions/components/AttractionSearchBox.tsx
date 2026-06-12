@@ -51,7 +51,7 @@ export function AttractionSearchBox({ className }: { className?: string }) {
       </div>
 
       {open && value.trim().length > 1 && hasResults && (
-        <div className="absolute z-30 mt-2 max-h-80 w-full overflow-auto rounded-xl border bg-popover p-1.5 text-left shadow-lg">
+        <div className="absolute z-50 mt-2 max-h-80 w-full overflow-auto rounded-xl border bg-popover p-1.5 text-left shadow-lg">
           {destinations.length > 0 && (
             <>
               <p className="flex items-center gap-1.5 rounded-md bg-secondary/70 px-3 py-1.5 text-xs font-semibold text-muted-foreground">
