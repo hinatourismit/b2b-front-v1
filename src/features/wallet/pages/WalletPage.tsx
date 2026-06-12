@@ -1,6 +1,16 @@
 import { useState } from "react";
-import { ArrowDownLeft, ArrowUpRight, CreditCard, Hourglass, Loader2, Wallet } from "lucide-react";
+import {
+  ArrowDownLeft,
+  ArrowUpRight,
+  CreditCard,
+  Hourglass,
+  Loader2,
+  PlusCircle,
+  Wallet,
+} from "lucide-react";
 import { useBalance, useTransactions } from "../api/wallet.queries";
+import { TopUpDialog } from "../components/TopUpDialog";
+import { WithdrawDialog } from "../components/WithdrawDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -67,6 +77,8 @@ function StatCard({
 export default function WalletPage() {
   const { data: balance, isLoading: balanceLoading } = useBalance();
   const [skip, setSkip] = useState(0);
+  const [topUpOpen, setTopUpOpen] = useState(false);
+  const [withdrawOpen, setWithdrawOpen] = useState(false);
   const { data, isLoading, isFetching } = useTransactions({
     skip,
     limit: PAGE_SIZE,
@@ -82,10 +94,23 @@ export default function WalletPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6">
-      <div>
-        <p className="text-sm font-semibold uppercase tracking-[0.16em] text-gold">Finance</p>
-        <h1 className="mt-1 text-3xl font-semibold tracking-tight">Wallet</h1>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-gold">Finance</p>
+          <h1 className="mt-1 text-3xl font-semibold tracking-tight">Wallet</h1>
+        </div>
+        <div className="flex gap-2">
+          <Button onClick={() => setTopUpOpen(true)}>
+            <PlusCircle className="size-4" /> Top up
+          </Button>
+          <Button variant="outline" onClick={() => setWithdrawOpen(true)}>
+            <ArrowUpRight className="size-4" /> Withdraw
+          </Button>
+        </div>
       </div>
+
+      <TopUpDialog open={topUpOpen} onOpenChange={setTopUpOpen} />
+      <WithdrawDialog open={withdrawOpen} onOpenChange={setWithdrawOpen} />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard title="Balance" value={formatPrice(balance?.balance)} icon={Wallet} loading={balanceLoading} />
