@@ -29,6 +29,14 @@ function uaeToday(): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Dubai" }).format(new Date());
 }
 
+/** "h:mm AM/PM" like the old app's moment(...).format("LT") (SlotBookingComponent.jsx:141). */
+function slotTime(value: string | undefined): string {
+  if (!value) return "";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return value;
+  return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+}
+
 function Counter({
   value,
   onChange,
@@ -163,10 +171,16 @@ export function ActivityConfigurator({
     0,
   );
 
+  // Timeslot products price from the selected slot: adult*AdultPrice +
+  // child*ChildPrice (old summary table, SlotBookingComponent.jsx:232).
+  const slotTotal = selectedSlot
+    ? adult * Number(selectedSlot.AdultPrice ?? 0) + child * Number(selectedSlot.ChildPrice ?? 0)
+    : null;
+
   const displayPrice =
     transfer === "private" && privateTransferTotal > 0
       ? privateTransferTotal
-      : (matchedPricing?.totalPrice ?? activity.lowPrice ?? 0);
+      : (slotTotal ?? matchedPricing?.totalPrice ?? activity.lowPrice ?? 0);
 
   const addToCart = () => {
     if (!date) {
@@ -316,21 +330,36 @@ export function ActivityConfigurator({
             <Loader2 className="size-4 animate-spin text-muted-foreground" />
           ) : slots.length > 0 ? (
             <div className="flex flex-wrap gap-2">
-              {slots.map((slot, i) => (
-                <button
-                  key={slot.EventID ?? i}
-                  type="button"
-                  onClick={() => setSelectedSlot(slot)}
-                  className={cn(
-                    "rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors",
-                    selectedSlot?.EventID === slot.EventID
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "bg-card hover:bg-accent",
-                  )}
-                >
-                  {slot.EventName ?? slot.StartDateTime}
-                </button>
-              ))}
+              {/* old card shows time range + adult/child prices (SlotBookingComponent.jsx:140-165) */}
+              {slots.map((slot, i) => {
+                const selected = selectedSlot?.EventID === slot.EventID;
+                return (
+                  <button
+                    key={slot.EventID ?? i}
+                    type="button"
+                    onClick={() => setSelectedSlot(slot)}
+                    className={cn(
+                      "rounded-lg border px-3 py-2 text-left transition-colors",
+                      selected
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "bg-card hover:bg-accent",
+                    )}
+                  >
+                    <span className="block text-xs font-semibold">
+                      {slotTime(slot.StartDateTime)} – {slotTime(slot.EndDateTime)}
+                    </span>
+                    <span
+                      className={cn(
+                        "mt-0.5 block text-[11px]",
+                        selected ? "text-primary-foreground/80" : "text-muted-foreground",
+                      )}
+                    >
+                      Adult {formatPrice(Number(slot.AdultPrice ?? 0))} · Child{" "}
+                      {formatPrice(Number(slot.ChildPrice ?? 0))}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           ) : (
             <p className="text-xs text-muted-foreground">No slots for this date.</p>
