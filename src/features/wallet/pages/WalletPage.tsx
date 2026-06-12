@@ -134,6 +134,9 @@ export default function WalletPage() {
         />
       </div>
 
+      {/* Transactions hidden for now (user decision 2026-06-13) — restore by
+          removing this false-gate. */}
+      {false && (
       <section>
         <div className="mb-3 flex items-center gap-2">
           <h2 className="text-xl font-semibold">Transactions</h2>
@@ -236,10 +239,7 @@ export default function WalletPage() {
           </div>
         </div>
       </section>
-
-      <p className="text-xs text-muted-foreground">
-        Deposits, deposit requests and withdrawals management arrive with the finance phase.
-      </p>
+      )}
     </div>
   );
 }

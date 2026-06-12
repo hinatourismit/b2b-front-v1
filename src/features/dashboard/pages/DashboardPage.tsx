@@ -2,10 +2,12 @@ import { Link } from "react-router-dom";
 import { ArrowUpRight, CreditCard, PiggyBank, Wallet } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import { useAgent } from "@/features/auth/api/auth.queries";
 import { useBalance } from "@/features/wallet/api/wallet.queries";
+import { useAttractionOrders } from "@/features/attractions/api/attractions.queries";
 import { enabledModules } from "@/config/modules";
-import { formatPrice } from "@/lib/utils";
+import { formatDate, formatPrice } from "@/lib/utils";
 
 function StatCard({
   title,
@@ -46,6 +48,18 @@ export default function DashboardPage() {
   const { agent, flags } = useAgent();
   const { data: balance, isLoading } = useBalance();
   const modules = enabledModules(flags);
+  const { data: ordersData, isLoading: ordersLoading } = useAttractionOrders({
+    skip: 0,
+    limit: 5,
+    referenceNo: "",
+    status: "",
+    attraction: "",
+    activity: "",
+    dateFrom: "",
+    dateTo: "",
+    travellerEmail: "",
+  });
+  const recentOrders = ordersData?.result?.data ?? [];
 
   const firstName = (agent?.name ?? "there").split(" ")[0];
 
@@ -106,13 +120,50 @@ export default function DashboardPage() {
 
       <section className="grid gap-4 lg:grid-cols-2">
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle className="font-sans text-base">Recent bookings</CardTitle>
+            <Link to="/attraction/order" className="text-xs font-medium text-primary hover:underline">
+              View all
+            </Link>
           </CardHeader>
           <CardContent>
-            <p className="py-6 text-center text-sm text-muted-foreground">
-              Booking summaries will appear here once the product modules go live (Phase B).
-            </p>
+            {ordersLoading ? (
+              <div className="space-y-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Skeleton key={i} className="h-10 w-full" />
+                ))}
+              </div>
+            ) : recentOrders.length === 0 ? (
+              <p className="py-6 text-center text-sm text-muted-foreground">No bookings yet.</p>
+            ) : (
+              <div className="divide-y">
+                {recentOrders.map((order) => (
+                  <Link
+                    key={order._id}
+                    to={`/attractions/invoice/${order._id}`}
+                    className="flex items-center justify-between gap-3 py-2.5 transition-colors hover:bg-accent/50"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium">
+                        {order.activities?.activity?.name ?? order.attraction?.title ?? "Booking"}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {order.agentReferenceNumber ?? order.referenceNumber} ·{" "}
+                        {formatDate(order.activities?.date ?? order.createdAt)}
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <span className="text-sm font-semibold tabular-nums">
+                        {formatPrice(order.totalAmount)}
+                      </span>
+                      <Badge variant="outline" className="capitalize">
+                        {order.activities?.status ?? "—"}
+                      </Badge>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
         <Card>
