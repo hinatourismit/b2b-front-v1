@@ -1,12 +1,13 @@
 import { apiClient } from "@/lib/api-client";
 
 /**
- * Old B2B frontend sources initial-data from the B2C route (homeSlice.js:37:
- * GET `/home/initial-data`), NOT /b2b/home — preserved. Response keys
- * { countries, destinations, currencies, popularHotelCities }
- * (homeControllers.js getInitialData).
+ * The old B2B frontend used the B2C route (homeSlice.js:37), but the B2B
+ * endpoint /b2b/home/initial-data returns a verified-identical response —
+ * same queries, same keys { countries, destinations, currencies,
+ * popularHotelCities } (b2bHomeController.js:434 vs homeControllers.js:406).
+ * User decision 2026-06-12: prefer the B2B route when responses are equal.
  */
-const BASE = "/home";
+const BASE = "/b2b/home";
 
 export interface Country {
   _id: string;

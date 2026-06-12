@@ -48,6 +48,6 @@ price, isPromoAdded`.
 
 - No cancel action in the agent UI (backend has cancel endpoints; old UI never calls them).
 - PaymentApproval (`/payment/approval`) is a static informational page (no API).
-- Attraction home = search + top destinations. **Initial-data comes from the B2C route `GET /home/initial-data`** (old homeSlice.js:37), not `/b2b/home/initial-data`; keys `{ countries, destinations, currencies, popularHotelCities }`; destinations render `name` + `image`. `banners`/`sections` endpoints are unused by the old app.
+- Attraction home = search + top destinations from `GET /b2b/home/initial-data`. (Old app used the B2C `/home/initial-data` — homeSlice.js:37 — but both controllers return verified-identical responses `{ countries, destinations, currencies, popularHotelCities }`; user decision 2026-06-12: prefer the B2B route when responses are equal.) Destinations render `name` + `image`. `banners`/`sections` endpoints are unused by the old app.
 - Audit (2026-06-12): every response field rendered by the new module now has controller + old-consumer line references (this doc). Timeslot fields (`EventID, StartDateTime, AdultPrice…`) verified against SlotBookingComponent.jsx; categories render `categoryName` (SearchHomePage.jsx:106); details page renders `highlights` (not description).
 - Discrepancy with doc 06 fixed: attraction checkout uses `/b2b/attractions/orders/create`, **not** the unified `/b2b/orders/create`.
