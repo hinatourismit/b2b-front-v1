@@ -1,6 +1,7 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import {
   ChevronDown,
+  ClipboardList,
   LayoutDashboard,
   LogOut,
   Settings,
@@ -50,26 +51,26 @@ function ModuleNav({ className }: { className?: string }) {
   const { flags } = useAgent();
   const modules = enabledModules(flags);
 
+  const linkClass = ({ isActive }: { isActive: boolean }) =>
+    cn(
+      "flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium transition-colors",
+      isActive
+        ? "bg-primary text-primary-foreground shadow-sm"
+        : "text-muted-foreground hover:bg-accent hover:text-foreground",
+    );
+
   return (
     <nav className={cn("flex items-center gap-1", className)}>
       {modules.map(([key, m]) => (
-        <NavLink
-          key={key}
-          to={m.home}
-          end={m.home === "/"}
-          className={({ isActive }) =>
-            cn(
-              "flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium transition-colors",
-              isActive
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "text-muted-foreground hover:bg-accent hover:text-foreground",
-            )
-          }
-        >
+        <NavLink key={key} to={m.home} end={m.home === "/"} className={linkClass}>
           <m.icon className="size-4" />
           {m.label}
         </NavLink>
       ))}
+      <NavLink to="/attraction/order" className={linkClass}>
+        <ClipboardList className="size-4" />
+        Orders
+      </NavLink>
     </nav>
   );
 }
@@ -188,6 +189,9 @@ function MobileNav() {
             <m.icon className="size-4" /> {m.label}
           </DropdownMenuItem>
         ))}
+        <DropdownMenuItem onClick={() => navigate("/attraction/order")}>
+          <ClipboardList className="size-4" /> Orders
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

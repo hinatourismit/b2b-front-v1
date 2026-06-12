@@ -12,6 +12,7 @@ const EntryDeniedPage = lazy(() => import("@/features/auth/pages/EntryDeniedPage
 
 // Dashboard & placeholders
 const DashboardPage = lazy(() => import("@/features/dashboard/pages/DashboardPage"));
+const WalletPage = lazy(() => import("@/features/wallet/pages/WalletPage"));
 const ModulePlaceholderPage = lazy(() => import("@/features/dashboard/pages/ModulePlaceholderPage"));
 
 // Payment return targets (paths are CCAvenue contract — do not change)
@@ -70,6 +71,7 @@ export const router = createBrowserRouter([
       { path: "insurance", element: suspense(<ModulePlaceholderPage module="insurance" />) },
 
       { path: "dashboard", element: suspense(<DashboardPage />) },
+      { path: "wallet", element: suspense(<WalletPage />) },
 
       { path: "*", element: suspense(<NotFoundPage />) },
     ],

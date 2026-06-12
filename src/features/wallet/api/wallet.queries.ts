@@ -13,3 +13,11 @@ export function useBalance() {
     staleTime: 30_000,
   });
 }
+
+export function useTransactions(filters: { skip: number; limit: number; status: string }) {
+  return useQuery({
+    queryKey: ["wallet", "transactions", filters],
+    queryFn: () => walletApi.getTransactions(filters),
+    placeholderData: (prev) => prev,
+  });
+}

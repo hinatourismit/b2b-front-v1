@@ -30,9 +30,9 @@ export function AuthLayout({ children, panel }: { children: ReactNode; panel?: R
       </div>
 
       <div className="relative hidden overflow-hidden lg:block">
-        <div className="absolute inset-0 bg-[linear-gradient(160deg,oklch(0.32_0.06_196)_0%,oklch(0.42_0.075_192)_55%,oklch(0.5_0.08_175)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(160deg,#163a5c_0%,#347bb7_55%,#4d94d0_100%)]" />
         <div className="absolute -right-24 -top-24 size-96 rounded-full bg-gold/20 blur-3xl" />
-        <div className="absolute -bottom-32 -left-16 size-[28rem] rounded-full bg-[oklch(0.6_0.1_200)]/30 blur-3xl" />
+        <div className="absolute -bottom-32 -left-16 size-[28rem] rounded-full bg-[#5ea2d9]/30 blur-3xl" />
         <div className="grain absolute inset-0" />
         <div className="relative flex h-full flex-col justify-between p-12 text-primary-foreground">
           <div />

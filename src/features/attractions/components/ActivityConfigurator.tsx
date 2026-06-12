@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn, formatPrice, formatTime } from "@/lib/utils";
 import { apiErrorMessage } from "@/types/api";
 
 /** Today in the UAE (Asia/Dubai), formatted YYYY-MM-DD for date inputs/API. */
@@ -29,13 +29,6 @@ function uaeToday(): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Dubai" }).format(new Date());
 }
 
-/** "h:mm AM/PM" like the old app's moment(...).format("LT") (SlotBookingComponent.jsx:141). */
-function slotTime(value: string | undefined): string {
-  if (!value) return "";
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return value;
-  return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
-}
 
 function Counter({
   value,
@@ -346,7 +339,7 @@ export function ActivityConfigurator({
                     )}
                   >
                     <span className="block text-xs font-semibold">
-                      {slotTime(slot.StartDateTime)} – {slotTime(slot.EndDateTime)}
+                      {formatTime(slot.StartDateTime)} – {formatTime(slot.EndDateTime)}
                     </span>
                     <span
                       className={cn(

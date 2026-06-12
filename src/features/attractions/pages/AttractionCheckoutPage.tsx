@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { CalendarDays, Loader2, ShoppingCart, Trash2, Users, Wallet } from "lucide-react";
+import { CalendarDays, Clock3, Loader2, ShoppingCart, Trash2, Users, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { ModuleGuard } from "@/app/guards";
 import { useCartStore } from "../store/cart.store";
@@ -27,7 +27,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { cn, formatDate, formatPrice } from "@/lib/utils";
+import { cn, formatDate, formatPrice, formatTime } from "@/lib/utils";
 import { apiErrorMessage } from "@/types/api";
 import type { SelectedActivityPayload } from "../types";
 
@@ -206,6 +206,17 @@ export default function AttractionCheckoutPage() {
                       </span>
                       <span className="capitalize">{item.transfer} transfer</span>
                     </p>
+                    {item.selectedTimeSlot && (
+                      <p className="mt-1 flex items-center gap-1 text-xs font-medium text-primary">
+                        <Clock3 className="size-3" />
+                        {formatTime(item.selectedTimeSlot.StartDateTime)} –{" "}
+                        {formatTime(item.selectedTimeSlot.EndDateTime)}
+                        <span className="text-muted-foreground">
+                          · Adult {formatPrice(Number(item.selectedTimeSlot.AdultPrice ?? 0))} ·
+                          Child {formatPrice(Number(item.selectedTimeSlot.ChildPrice ?? 0))}
+                        </span>
+                      </p>
+                    )}
                   </div>
                   <div className="flex shrink-0 items-center gap-3">
                     <span className="font-semibold text-primary">{formatPrice(item.price)}</span>

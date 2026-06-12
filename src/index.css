@@ -14,7 +14,7 @@
   --card-foreground: oklch(0.24 0.02 196);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.24 0.02 196);
-  --primary: oklch(0.42 0.075 192);             /* deep emerald-teal */
+  --primary: #347bb7;                           /* Hina brand blue (user 2026-06-13) */
   --primary-foreground: oklch(0.985 0.005 84);
   --secondary: oklch(0.95 0.012 84);            /* sand-100 */
   --secondary-foreground: oklch(0.32 0.04 192);
@@ -30,7 +30,7 @@
   --warning: oklch(0.74 0.15 75);
   --border: oklch(0.9 0.012 84);
   --input: oklch(0.88 0.014 84);
-  --ring: oklch(0.42 0.075 192);
+  --ring: #347bb7;
   --radius: 0.625rem;
 }
 
