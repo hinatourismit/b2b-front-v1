@@ -3,7 +3,16 @@ import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { CalendarDays, Clock3, Loader2, ShoppingCart, Trash2, Users, Wallet } from "lucide-react";
+import {
+  CalendarDays,
+  Clock3,
+  Loader2,
+  Pencil,
+  ShoppingCart,
+  Trash2,
+  Users,
+  Wallet,
+} from "lucide-react";
 import { toast } from "sonner";
 import { ModuleGuard } from "@/app/guards";
 import { useCartStore } from "../store/cart.store";
@@ -62,7 +71,19 @@ export default function AttractionCheckoutPage() {
   const [orderId, setOrderId] = useState<string | null>(null);
 
   const form = useForm<LeadForm>({ resolver: zodResolver(leadSchema) });
-  const grandTotal = total();
+
+  // Breakdown: row prices are pre-VAT; VAT added per item (same formula the
+  // old checkout used inside finalPayment). Card payments carry a 3% surcharge
+  // (user decision 2026-06-13), auto-added when CCAvenue is selected.
+  const subtotal = items.reduce((acc, item) => acc + item.price, 0);
+  const vatTotal = items.reduce(
+    (acc, item) => acc + (item.isVat && item.vat ? (item.price * item.vat) / 100 : 0),
+    0,
+  );
+  const grandTotal = total(); // subtotal + VAT
+  const CARD_FEE_RATE = 0.03;
+  const cardFee = payBy === "ccavenue" ? grandTotal * CARD_FEE_RATE : 0;
+  const payableTotal = grandTotal + cardFee;
 
   // Backend rule (checkWalletBalance.js): spendable = balance + (creditAmount
   // - creditUsed). Credit lets agents pay even with zero cash balance.
@@ -219,7 +240,24 @@ export default function AttractionCheckoutPage() {
                     )}
                   </div>
                   <div className="flex shrink-0 items-center gap-3">
-                    <span className="font-semibold text-primary">{formatPrice(item.price)}</span>
+                    <div className="text-right">
+                      <span className="font-semibold text-primary">{formatPrice(item.price)}</span>
+                      {item.isVat && item.vat ? (
+                        <span className="block text-[11px] text-muted-foreground">
+                          +{item.vat}% VAT
+                        </span>
+                      ) : null}
+                    </div>
+                    {typeof item.attraction === "string" && (
+                      <Link
+                        to={`/attractions/details/${item.attraction}`}
+                        className="text-muted-foreground hover:text-primary"
+                        aria-label="Edit selection"
+                        title="Edit"
+                      >
+                        <Pencil className="size-4" />
+                      </Link>
+                    )}
                     <button
                       onClick={() => removeItem(item._id)}
                       className="text-muted-foreground hover:text-destructive"
@@ -328,16 +366,31 @@ export default function AttractionCheckoutPage() {
                   )}
                 >
                   <span className="font-medium">Card (CCAvenue)</span>
-                  <span className="text-xs text-muted-foreground">redirects to gateway</span>
+                  <span className="text-xs text-muted-foreground">+3% card charge</span>
                 </button>
               </div>
 
               <div className="mt-4 space-y-1.5 border-t pt-4 text-sm">
-                <div className="flex justify-between font-semibold">
-                  <span>Total</span>
-                  <span className="text-lg text-primary">{formatPrice(grandTotal)}</span>
+                <div className="flex justify-between text-muted-foreground">
+                  <span>Subtotal</span>
+                  <span className="tabular-nums">{formatPrice(subtotal)}</span>
                 </div>
-                <p className="text-xs text-muted-foreground">Includes VAT where applicable.</p>
+                {vatTotal > 0 && (
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>VAT</span>
+                    <span className="tabular-nums">{formatPrice(vatTotal)}</span>
+                  </div>
+                )}
+                {cardFee > 0 && (
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>Card charge (3%)</span>
+                    <span className="tabular-nums">{formatPrice(cardFee)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between border-t pt-1.5 font-semibold">
+                  <span>Total</span>
+                  <span className="text-lg text-primary">{formatPrice(payableTotal)}</span>
+                </div>
               </div>
 
               <Button
