@@ -58,6 +58,11 @@ function statusVariant(status: string | undefined) {
   }
 }
 
+/** Only these are agent-relevant (user decision 2026-06-13). The list API
+ *  takes a single status value, so "all" fetches everything and we filter
+ *  rows client-side; the Excel export carries the same caveat server-side. */
+const VISIBLE_STATUSES = ["confirmed", "booked"];
+
 /** /attraction/order — same query contract as old AttractionOrder page. */
 export default function AttractionOrdersPage() {
   const [filters, setFilters] = useState<AttractionOrdersFilters>(EMPTY);
@@ -65,7 +70,11 @@ export default function AttractionOrdersPage() {
   const [downloading, setDownloading] = useState(false);
   const { data, isLoading, isFetching } = useAttractionOrders(filters);
 
-  const orders = data?.result?.data ?? [];
+  const allRows = data?.result?.data ?? [];
+  const orders =
+    filters.status === ""
+      ? allRows.filter((o) => VISIBLE_STATUSES.includes(o.activities?.status ?? ""))
+      : allRows;
   const totalOrders = data?.result?.totalOrders ?? 0;
   const page = filters.skip / PAGE_SIZE;
   const pageCount = Math.max(1, Math.ceil(totalOrders / PAGE_SIZE));
@@ -97,8 +106,8 @@ export default function AttractionOrdersPage() {
   return (
     <ModuleGuard module="attractions">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-3xl font-semibold tracking-tight">Attraction orders</h1>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h1 className="text-3xl font-semibold tracking-tight">Orders</h1>
           <Button variant="outline" onClick={downloadSheet} disabled={downloading}>
             {downloading ? (
               <Loader2 className="size-4 animate-spin" />
@@ -107,6 +116,30 @@ export default function AttractionOrdersPage() {
             )}
             Export Excel
           </Button>
+        </div>
+
+        {/* One orders hub — module tabs light up as each module ships. */}
+        <div className="mb-5 flex gap-1.5 overflow-x-auto border-b pb-px">
+          {[
+            { label: "Attraction orders", active: true },
+            { label: "Hotel orders" },
+            { label: "Visa applications" },
+            { label: "A2A orders" },
+          ].map((tab) => (
+            <button
+              key={tab.label}
+              type="button"
+              disabled={!tab.active}
+              title={tab.active ? undefined : "Available when this module launches"}
+              className={
+                tab.active
+                  ? "shrink-0 border-b-2 border-primary px-3.5 py-2 text-sm font-semibold text-primary"
+                  : "shrink-0 cursor-not-allowed px-3.5 py-2 text-sm font-medium text-muted-foreground/50"
+              }
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
 
         <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -133,11 +166,9 @@ export default function AttractionOrdersPage() {
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All statuses</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="paid">Paid</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
-              <SelectItem value="cancelled">Cancelled</SelectItem>
+              <SelectItem value="all">Confirmed & booked</SelectItem>
+              <SelectItem value="confirmed">Confirmed</SelectItem>
+              <SelectItem value="booked">Booked</SelectItem>
             </SelectContent>
           </Select>
           {isFetching && !isLoading && <Loader2 className="size-4 animate-spin text-muted-foreground" />}
