@@ -403,11 +403,17 @@ export default function AttractionOrdersPage() {
                           )}
                         </Button>
                       )}
-                      <Button asChild variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
-                        <Link to={`/attractions/invoice/${order._id}`}>
-                          <Eye className="size-3.5" /> View
-                        </Link>
-                      </Button>
+                      {/* Invoice page is backend-gated to completed orders
+                          (controller matches orderStatus:"completed"); only
+                          link it for confirmed orders. Detail for any status is
+                          the expandable row below. */}
+                      {order.activities?.status === "confirmed" && (
+                        <Button asChild variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
+                          <Link to={`/attractions/invoice/${order._id}`}>
+                            <Eye className="size-3.5" /> Invoice
+                          </Link>
+                        </Button>
+                      )}
                       <ChevronDown
                         className={cn(
                           "ml-1 inline size-4 text-muted-foreground transition-transform",

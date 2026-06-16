@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Building2, CalendarDays, Loader2, MapPin, Minus, Plus, Search, Users } from "lucide-react";
+import { Building2, CalendarDays, Loader2, MapPin, Minus, Plus, Search, Tag, Users } from "lucide-react";
 import { useHotelSuggestions } from "../api/hotels.queries";
 import type { HotelSuggestion, RoomOccupancy, SearchQuery } from "../types";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,21 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+
+/** Rate sourcing filter — mirrors b2b-front-main HotelCard priceType (All/Static/Dynamic). */
+const PRICE_TYPES = [
+  { value: "all", label: "All" },
+  { value: "static", label: "Static" },
+  { value: "dynamic", label: "Dynamic" },
+] as const;
 
 function uaeDate(offsetDays: number): string {
   const base = new Date(
@@ -36,6 +50,7 @@ export function HotelSearchBox({ className }: { className?: string }) {
   const [rooms, setRooms] = useState<RoomOccupancy[]>([
     { noOfAdults: 2, noOfChildren: 0, childrenAges: [] },
   ]);
+  const [priceType, setPriceType] = useState("all");
 
   const suggestions: HotelSuggestion[] = data
     ? [...data.cities, ...data.areas, ...data.hotels]
@@ -60,6 +75,7 @@ export function HotelSearchBox({ className }: { className?: string }) {
     params.set("fromDate", new Date(fromDate).toJSON());
     params.set("toDate", new Date(toDate).toJSON());
     params.set("rooms", JSON.stringify(rooms));
+    params.set("priceType", priceType);
     if (selected?.suggestionType === "HOTEL") {
       navigate(`/hotel/details/${selected.hotelId ?? selected._id}?${params.toString()}`);
       return;
@@ -80,7 +96,7 @@ export function HotelSearchBox({ className }: { className?: string }) {
 
   return (
     <div className={cn("rounded-2xl bg-card p-3 shadow-lg", className)}>
-      <div className="grid gap-2 lg:grid-cols-[1.6fr_1fr_1fr_1fr_auto]">
+      <div className="grid gap-2 lg:grid-cols-[1.6fr_1fr_1fr_1fr_0.9fr_auto]">
         {/* Destination */}
         <div className="relative">
           <div className="relative">
@@ -241,6 +257,21 @@ export function HotelSearchBox({ className }: { className?: string }) {
             </Button>
           </PopoverContent>
         </Popover>
+
+        {/* Rate type — All / Static / Dynamic */}
+        <Select value={priceType} onValueChange={setPriceType}>
+          <SelectTrigger className="!h-12 w-full" aria-label="Rate type">
+            <Tag className="size-4 shrink-0 text-muted-foreground" />
+            <SelectValue placeholder="Type" />
+          </SelectTrigger>
+          <SelectContent>
+            {PRICE_TYPES.map((t) => (
+              <SelectItem key={t.value} value={t.value}>
+                {t.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
         <Button className="h-12 px-6" onClick={search}>
           <Search className="size-4" /> Search

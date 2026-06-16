@@ -29,7 +29,7 @@ function saveBlob(blob: Blob, filename: string) {
  */
 export default function AttractionInvoicePage() {
   const { id } = useParams();
-  const { data: order, isLoading, isError } = useAttractionOrder(id);
+  const { data: order, isLoading, isError, error } = useAttractionOrder(id);
   const [downloadingInvoice, setDownloadingInvoice] = useState(false);
 
   const downloadInvoice = async () => {
@@ -55,7 +55,14 @@ export default function AttractionInvoicePage() {
           </div>
         ) : isError || !order ? (
           <div className="py-16 text-center">
-            <p className="text-sm text-muted-foreground">We couldn't load this order.</p>
+            <p className="text-sm font-medium">This invoice isn't available yet</p>
+            <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
+              {apiErrorMessage(error, "")
+                .toLowerCase()
+                .includes("not found")
+                ? "The invoice page is only available once the order is completed. For pending or unconfirmed orders, view the details from the orders list."
+                : apiErrorMessage(error, "We couldn't load this order.")}
+            </p>
             <Button asChild variant="outline" className="mt-4">
               <Link to="/attraction/order">Go to orders</Link>
             </Button>
