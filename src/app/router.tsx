@@ -36,6 +36,9 @@ const HotelHomePage = lazy(() => import("@/features/hotels/pages/HotelHomePage")
 const HotelResultsPage = lazy(() => import("@/features/hotels/pages/HotelResultsPage"));
 const HotelDetailPage = lazy(() => import("@/features/hotels/pages/HotelDetailPage"));
 const HotelCheckoutPage = lazy(() => import("@/features/hotels/pages/HotelCheckoutPage"));
+const HotelOrdersPage = lazy(() => import("@/features/hotels/pages/HotelOrdersPage"));
+const HotelOrderDetailPage = lazy(() => import("@/features/hotels/pages/HotelOrderDetailPage"));
+const HotelErrorPage = lazy(() => import("@/features/hotels/pages/HotelErrorPage"));
 
 const NotFoundPage = lazy(() => import("@/components/common/NotFoundPage"));
 
@@ -63,6 +66,10 @@ export const router = createBrowserRouter([
       { path: "hotel/avail", element: suspense(<HotelResultsPage />) },
       { path: "hotel/details/:id", element: suspense(<HotelDetailPage />) },
       { path: "hotel/:id/apply/:roomtypeid", element: suspense(<HotelCheckoutPage />) },
+      { path: "hotel/order", element: suspense(<HotelOrdersPage />) },
+      { path: "hotel/order/:id/details", element: suspense(<HotelOrderDetailPage />) },
+      { path: "hotel/invoice/error", element: suspense(<HotelErrorPage />) },
+      { path: "hotel/invoice/:id", element: suspense(<HotelOrderDetailPage success />) },
 
       // Attractions (Phase B2) — paths mirror the old portal exactly
       { path: "attraction", element: suspense(<AttractionHomePage />) },

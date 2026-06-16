@@ -73,4 +73,7 @@ export const hotelsApi = {
 
   getInvoiceBlob: async (orderId: string) =>
     (await apiClient.get(`${ORDERS}/invoice/${orderId}`, { responseType: "blob" })).data as Blob,
+
+  cancelOrder: async (orderId: string, cancellationRemark: string) =>
+    (await apiClient.post(`${ORDERS}/cancel/${orderId}`, { cancellationRemark })).data,
 };
