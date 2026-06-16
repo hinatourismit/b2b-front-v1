@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { CalendarDays, Loader2, MapPin, Star, Utensils, XCircle } from "lucide-react";
+import { CalendarDays, MapPin, Star, Utensils, XCircle } from "lucide-react";
 import { ModuleGuard } from "@/app/guards";
 import { useSingleHotel } from "../api/hotels.queries";
 import { hotelsApi } from "../api/hotels.api";
@@ -40,7 +40,6 @@ export default function HotelDetailPage() {
 
   const fromDate = searchParams.get("fromDate")?.slice(0, 10) ?? "";
   const toDate = searchParams.get("toDate")?.slice(0, 10) ?? "";
-  const searchString = searchParams.toString();
 
   const loadAvailability = useCallback(async () => {
     if (!id) return;
