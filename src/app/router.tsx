@@ -31,6 +31,10 @@ const AttractionPaymentErrorPage = lazy(
   () => import("@/features/attractions/pages/AttractionPaymentErrorPage"),
 );
 
+// Hotels (Phase B1)
+const HotelHomePage = lazy(() => import("@/features/hotels/pages/HotelHomePage"));
+const HotelResultsPage = lazy(() => import("@/features/hotels/pages/HotelResultsPage"));
+
 const NotFoundPage = lazy(() => import("@/components/common/NotFoundPage"));
 
 const suspense = (node: React.ReactNode) => (
@@ -53,7 +57,8 @@ export const router = createBrowserRouter([
       // Attractions is the landing page (user decision 2026-06-12); hotels
       // moves to /hotel until Phase B1 lands.
       { index: true, element: suspense(<AttractionHomePage />) },
-      { path: "hotel", element: suspense(<ModulePlaceholderPage module="hotels" />) },
+      { path: "hotel", element: suspense(<HotelHomePage />) },
+      { path: "hotel/avail", element: suspense(<HotelResultsPage />) },
 
       // Attractions (Phase B2) — paths mirror the old portal exactly
       { path: "attraction", element: suspense(<AttractionHomePage />) },
