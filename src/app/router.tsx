@@ -34,6 +34,7 @@ const AttractionPaymentErrorPage = lazy(
 // Hotels (Phase B1)
 const HotelHomePage = lazy(() => import("@/features/hotels/pages/HotelHomePage"));
 const HotelResultsPage = lazy(() => import("@/features/hotels/pages/HotelResultsPage"));
+const HotelDetailPage = lazy(() => import("@/features/hotels/pages/HotelDetailPage"));
 
 const NotFoundPage = lazy(() => import("@/components/common/NotFoundPage"));
 
@@ -59,6 +60,7 @@ export const router = createBrowserRouter([
       { index: true, element: suspense(<AttractionHomePage />) },
       { path: "hotel", element: suspense(<HotelHomePage />) },
       { path: "hotel/avail", element: suspense(<HotelResultsPage />) },
+      { path: "hotel/details/:id", element: suspense(<HotelDetailPage />) },
 
       // Attractions (Phase B2) — paths mirror the old portal exactly
       { path: "attraction", element: suspense(<AttractionHomePage />) },

@@ -1,6 +1,7 @@
 import { apiClient } from "@/lib/api-client";
 import type {
   CreateHotelOrderBody,
+  HotelDetail,
   HotelOrdersResponse,
   RoomRateResponse,
   SearchAvailabilityBody,
@@ -42,7 +43,7 @@ export const hotelsApi = {
       .data,
 
   getSingleHotel: async (hotelId: string) =>
-    (await apiClient.get(`${AVAIL}/single/${hotelId}`)).data,
+    (await apiClient.get<HotelDetail>(`${AVAIL}/single/${hotelId}`)).data,
 
   singleSearch: async (body: SingleSearchBody) =>
     (await apiClient.post<SingleSearchResponse>(`${AVAIL}/single/search`, body)).data,

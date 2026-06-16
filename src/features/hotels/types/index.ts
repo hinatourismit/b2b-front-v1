@@ -100,19 +100,60 @@ export interface SearchFilters {
   sortBy: string;
 }
 
+/** A rate option within a room (old AvailabilitySection `sub`). */
 export interface HotelRate {
   rateKey: string;
+  rateName?: string;
   netPrice?: number;
+  grossPrice?: number;
+  availableAllocation?: number;
+  cancellationType?: string;
+  cancellationPolicies?: unknown[];
   boardName?: string;
   boardCode?: string;
-  cancellationType?: string;
+  selectedRoomOccupancies?: { text?: string }[] | string[];
+  rateComments?: string[];
+  promotions?: { text?: string }[];
+  provider?: string;
+  isApiConnected?: boolean;
   [key: string]: unknown;
 }
 
+/** A room type with its rates (old AvailabilitySection `item`). */
 export interface HotelRoom {
+  roomTypeId?: string;
   roomId?: string;
-  name?: string;
+  standardName?: string;
+  roomType?: {
+    roomName?: string;
+    images?: string[];
+    areaInM2?: number | string;
+    amenities?: string[];
+  };
   rates: HotelRate[];
+  [key: string]: unknown;
+}
+
+/** Static hotel detail (GET single/:hotelId). */
+export interface HotelDetail {
+  _id: string;
+  hotelName?: string;
+  description?: string;
+  images?: string[];
+  starCategory?: number | string;
+  address?: string;
+  landMark?: string;
+  city?: { cityName?: string } | string;
+  state?: { stateName?: string } | string;
+  country?: { countryName?: string } | string;
+  amenities?: { name?: string; icon?: string }[];
+  featuredAmenities?: { name?: string; icon?: string }[];
+  checkInTime?: string;
+  checkOutTime?: string;
+  distanceFromCity?: string | number;
+  geoCode?: { lat?: number; lng?: number; latitude?: number; longitude?: number };
+  roomsCount?: number;
+  floorsCount?: number;
   [key: string]: unknown;
 }
 
