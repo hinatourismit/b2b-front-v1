@@ -44,7 +44,38 @@ export default function HotelOrdersPage() {
   return (
     <ModuleGuard module="hotels">
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        <h1 className="mb-6 text-3xl font-semibold tracking-tight">Hotel orders</h1>
+        <h1 className="mb-4 text-3xl font-semibold tracking-tight">Orders</h1>
+
+        <div className="mb-5 flex gap-1.5 overflow-x-auto border-b pb-px">
+          {[
+            { label: "Attraction orders", to: "/attraction/order" },
+            { label: "Hotel orders", to: "/hotel/order", current: true },
+            { label: "Visa applications" },
+            { label: "A2A orders" },
+          ].map((tab) =>
+            tab.to ? (
+              <Link
+                key={tab.label}
+                to={tab.to}
+                className={
+                  tab.current
+                    ? "shrink-0 border-b-2 border-primary px-3.5 py-2 text-sm font-semibold text-primary"
+                    : "shrink-0 px-3.5 py-2 text-sm font-medium text-muted-foreground hover:text-foreground"
+                }
+              >
+                {tab.label}
+              </Link>
+            ) : (
+              <span
+                key={tab.label}
+                title="Available when this module launches"
+                className="shrink-0 cursor-not-allowed px-3.5 py-2 text-sm font-medium text-muted-foreground/50"
+              >
+                {tab.label}
+              </span>
+            ),
+          )}
+        </div>
 
         <div className="overflow-x-auto rounded-xl border bg-card">
           <Table>

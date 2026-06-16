@@ -146,25 +146,33 @@ export default function AttractionOrdersPage() {
         {/* One orders hub — module tabs light up as each module ships. */}
         <div className="mb-5 flex gap-1.5 overflow-x-auto border-b pb-px">
           {[
-            { label: "Attraction orders", active: true },
-            { label: "Hotel orders" },
+            { label: "Attraction orders", to: "/attraction/order", current: true },
+            { label: "Hotel orders", to: "/hotel/order" },
             { label: "Visa applications" },
             { label: "A2A orders" },
-          ].map((tab) => (
-            <button
-              key={tab.label}
-              type="button"
-              disabled={!tab.active}
-              title={tab.active ? undefined : "Available when this module launches"}
-              className={
-                tab.active
-                  ? "shrink-0 border-b-2 border-primary px-3.5 py-2 text-sm font-semibold text-primary"
-                  : "shrink-0 cursor-not-allowed px-3.5 py-2 text-sm font-medium text-muted-foreground/50"
-              }
-            >
-              {tab.label}
-            </button>
-          ))}
+          ].map((tab) =>
+            tab.to ? (
+              <Link
+                key={tab.label}
+                to={tab.to}
+                className={
+                  tab.current
+                    ? "shrink-0 border-b-2 border-primary px-3.5 py-2 text-sm font-semibold text-primary"
+                    : "shrink-0 px-3.5 py-2 text-sm font-medium text-muted-foreground hover:text-foreground"
+                }
+              >
+                {tab.label}
+              </Link>
+            ) : (
+              <span
+                key={tab.label}
+                title="Available when this module launches"
+                className="shrink-0 cursor-not-allowed px-3.5 py-2 text-sm font-medium text-muted-foreground/50"
+              >
+                {tab.label}
+              </span>
+            ),
+          )}
         </div>
 
         {/* Filter bar — same field set as the old AttractionOrder.jsx */}
