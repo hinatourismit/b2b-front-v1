@@ -12,9 +12,19 @@ import { cn, formatDate, formatPrice } from "@/lib/utils";
 import { env } from "@/config/env";
 import { apiErrorMessage } from "@/types/api";
 
-function img(path: string | undefined): string | null {
-  if (!path) return null;
-  return path.startsWith("http") ? path : `${env.VITE_API_URL}${path.startsWith("/") ? "" : "/"}${path}`;
+/** Hotel/room images may be plain strings or { path, isRelative } objects. */
+function img(image: unknown): string | null {
+  if (!image) return null;
+  if (typeof image === "string") {
+    return image.startsWith("http") ? image : `${env.VITE_API_URL}${image.startsWith("/") ? "" : "/"}${image}`;
+  }
+  if (typeof image === "object") {
+    const o = image as { path?: string; isRelative?: boolean };
+    if (!o.path) return null;
+    if (o.isRelative) return `${env.VITE_API_URL}${o.path.startsWith("/") ? "" : "/"}${o.path}`;
+    return o.path;
+  }
+  return null;
 }
 
 function locText(v: unknown): string | undefined {

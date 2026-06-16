@@ -119,6 +119,9 @@ export interface HotelRate {
   [key: string]: unknown;
 }
 
+/** Images come back as plain strings or { path, isRelative } objects. */
+export type HotelImage = string | { path?: string; isRelative?: boolean };
+
 /** A room type with its rates (old AvailabilitySection `item`). */
 export interface HotelRoom {
   roomTypeId?: string;
@@ -126,7 +129,7 @@ export interface HotelRoom {
   standardName?: string;
   roomType?: {
     roomName?: string;
-    images?: string[];
+    images?: HotelImage[];
     areaInM2?: number | string;
     amenities?: string[];
   };
@@ -139,7 +142,7 @@ export interface HotelDetail {
   _id: string;
   hotelName?: string;
   description?: string;
-  images?: string[];
+  images?: HotelImage[];
   starCategory?: number | string;
   address?: string;
   landMark?: string;

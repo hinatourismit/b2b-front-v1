@@ -41,6 +41,7 @@ const HotelOrderDetailPage = lazy(() => import("@/features/hotels/pages/HotelOrd
 const HotelErrorPage = lazy(() => import("@/features/hotels/pages/HotelErrorPage"));
 
 const NotFoundPage = lazy(() => import("@/components/common/NotFoundPage"));
+const RouteError = lazy(() => import("@/components/common/RouteError"));
 
 const suspense = (node: React.ReactNode) => (
   <Suspense fallback={<FullPageLoader />}>{node}</Suspense>
@@ -58,6 +59,7 @@ export const router = createBrowserRouter([
         <MainLayout />
       </ProtectedRoute>
     ),
+    errorElement: suspense(<RouteError />),
     children: [
       // Attractions is the landing page (user decision 2026-06-12); hotels
       // moves to /hotel until Phase B1 lands.
