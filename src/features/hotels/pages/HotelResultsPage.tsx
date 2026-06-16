@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Loader2, SearchX } from "lucide-react";
 import { ModuleGuard } from "@/app/guards";
@@ -6,7 +6,6 @@ import { HotelSearchBox } from "../components/HotelSearchBox";
 import { HotelResultCard } from "../components/HotelResultCard";
 import { hotelsApi } from "../api/hotels.api";
 import type { AvailabilityResultItem, RoomOccupancy, SearchQuery } from "../types";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDate } from "@/lib/utils";
 import { apiErrorMessage } from "@/types/api";
@@ -16,7 +15,10 @@ const LIMIT = 10;
 export default function HotelResultsPage() {
   const [searchParams] = useSearchParams();
   const [hotels, setHotels] = useState<AvailabilityResultItem[]>([]);
-  const [searchId, setSearchId] = useState("");
+  // Held in a ref (not state) so the memoized runSearch always reads the latest
+  // searchId. With a valid searchId the backend paginates the cached result set;
+  // an empty one forces a full supplier re-search — what made "Load more" slow.
+  const searchIdRef = useRef("");
   const [filteredCount, setFilteredCount] = useState(0);
   const [skip, setSkip] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -30,8 +32,10 @@ export default function HotelResultsPage() {
   const runSearch = useCallback(
     async (nextSkip: number) => {
       try {
-        if (nextSkip === 0) setLoading(true);
-        else setLoadingMore(true);
+        if (nextSkip === 0) {
+          setLoading(true);
+          searchIdRef.current = ""; // new search → drop any prior cached id
+        } else setLoadingMore(true);
         setError("");
 
         const roomsRaw = searchParams.get("rooms");
@@ -41,8 +45,16 @@ export default function HotelResultsPage() {
           : [{ noOfAdults: 2, noOfChildren: 0, childrenAges: [] }];
         const searchQuery: SearchQuery | null = sqRaw ? JSON.parse(sqRaw) : null;
 
+        // starCategory is a results-list filter (the backend search body ignores it).
+        const starCategory = searchParams.get("starCategory") ?? "";
+
         const res = await hotelsApi.searchAvailability(
-          { skip: nextSkip, limit: LIMIT, searchId: nextSkip === 0 ? "" : searchId },
+          {
+            skip: nextSkip,
+            limit: LIMIT,
+            searchId: nextSkip === 0 ? "" : searchIdRef.current,
+            starCategories: starCategory ? [starCategory] : [],
+          },
           {
             searchQuery,
             fromDate,
@@ -53,7 +65,7 @@ export default function HotelResultsPage() {
           },
         );
 
-        setSearchId(res.searchId);
+        searchIdRef.current = res.searchId;
         setFilteredCount(res.filteredHotelsCount ?? res.hotels?.length ?? 0);
         setHotels((prev) => (nextSkip === 0 ? (res.hotels ?? []) : [...prev, ...(res.hotels ?? [])]));
         setSkip(nextSkip);
@@ -75,6 +87,25 @@ export default function HotelResultsPage() {
   }, [searchString]);
 
   const hasMore = hotels.length < filteredCount;
+
+  // Infinite scroll: load the next page when the sentinel scrolls into view.
+  // Deps include skip/hasMore/loadingMore so the observer always closes over
+  // fresh values (and re-arms after each page) instead of a stale snapshot.
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const node = sentinelRef.current;
+    if (!node || !hasMore) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !loading && !loadingMore) {
+          runSearch(skip + LIMIT);
+        }
+      },
+      { rootMargin: "600px" }, // prefetch before the user hits the bottom
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [hasMore, loading, loadingMore, skip, runSearch]);
 
   return (
     <ModuleGuard module="hotels">
@@ -127,13 +158,18 @@ export default function HotelResultsPage() {
                 />
               ))}
             </div>
-            {hasMore && (
-              <div className="mt-6 flex justify-center">
-                <Button variant="outline" onClick={() => runSearch(skip + LIMIT)} disabled={loadingMore}>
-                  {loadingMore && <Loader2 className="size-4 animate-spin" />}
-                  Load more hotels
-                </Button>
+            {/* Sentinel — the observer above triggers the next page near here. */}
+            {hasMore && <div ref={sentinelRef} className="h-px" aria-hidden />}
+            {loadingMore && (
+              <div className="mt-6 flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="size-4 animate-spin" />
+                Loading more hotels…
               </div>
+            )}
+            {!hasMore && hotels.length > 0 && (
+              <p className="mt-6 text-center text-sm text-muted-foreground">
+                You've reached the end · {filteredCount} hotels
+              </p>
             )}
           </>
         )}

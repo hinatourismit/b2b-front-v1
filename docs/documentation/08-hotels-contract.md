@@ -55,7 +55,7 @@ Search response root: `{ searchId, totalHotels, filteredHotelsCount, skip, limit
 `/hotel/order/:id/details`, `/hotel/invoice/:id` (success), `/hotel/invoice/error`.
 
 ## Workflow
-search box (suggestion + dates + rooms + nationality) → results (`/hotel/avail`, infinite scroll, filters) →
+search box (suggestion + dates + nights + rooms + nationality + star category + rate type) → results (`/hotel/avail`, infinite scroll, filters) →
 detail (static + availability with room rates) → pick rate → checkout (`/hotel/:id/apply/...`):
 rate recheck (holds rate, countdown via `expiresIn`) → traveller + contact details →
 pay (wallet OTP / pay-later / ccavenue HTML redirect) → `/hotel/invoice/:id` → voucher + invoice PDFs.
@@ -65,6 +65,7 @@ pay (wallet OTP / pay-later / ccavenue HTML redirect) → `/hotel/invoice/:id` �
 - `rateKey` is URL-encoded in links, `decodeURIComponent` before sending.
 - ccavenue create returns an HTML page (blob + location.replace), same as attractions.
 - `priceType`/`priceType: "all"` default on single search.
+- Search box `starCategory` is NOT a search-body field — the backend search body (Joi) accepts only `searchQuery, fromDate, toDate, rooms, nationality, priceType`. Star is applied as the `starCategories` (JSON) results-query filter; `HotelSearchBox` emits it as a `starCategory` URL param which `HotelResultsPage` maps into the filter. `nights` is UI-only (sets `toDate = fromDate + n`).
 - Rate holds expire (`expiresIn`); old app shows a countdown and the rate can lapse.
 
 ## Card fee

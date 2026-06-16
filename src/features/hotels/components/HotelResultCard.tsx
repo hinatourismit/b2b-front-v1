@@ -14,8 +14,13 @@ function imageUrl(image: AvailabilityResultItem["hotel"]["image"]): string | nul
 function text(v: unknown): string | undefined {
   if (typeof v === "string") return v;
   if (v && typeof v === "object") {
-    const o = v as { countryName?: string; stateName?: string };
-    return o.countryName ?? o.stateName;
+    const o = v as {
+      countryName?: string;
+      stateName?: string;
+      accommodationTypeName?: string;
+      name?: string;
+    };
+    return o.countryName ?? o.stateName ?? o.accommodationTypeName ?? o.name;
   }
   return undefined;
 }
@@ -73,9 +78,9 @@ export function HotelResultCard({
               {[text(hotel.state), text(hotel.country)].filter(Boolean).join(", ")}
             </p>
           )}
-          {hotel.accommodationType && (
+          {text(hotel.accommodationType) && (
             <span className="mt-2 inline-block rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium capitalize">
-              {hotel.accommodationType}
+              {text(hotel.accommodationType)}
             </span>
           )}
         </div>

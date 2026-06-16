@@ -45,7 +45,9 @@ export interface HotelSummary {
   hotelName?: string;
   image?: { path?: string; isRelative?: boolean } | string;
   starCategory?: number | string;
-  accommodationType?: string;
+  accommodationType?:
+    | { accommodationTypeName?: string; accommodationTypeCode?: string }
+    | string;
   address?: string;
   country?: { countryName?: string } | string;
   state?: { stateName?: string } | string;

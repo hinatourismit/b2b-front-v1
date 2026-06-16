@@ -1,7 +1,21 @@
 import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Building2, CalendarDays, Loader2, MapPin, Minus, Plus, Search, Tag, Users } from "lucide-react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import {
+  Building2,
+  CalendarDays,
+  Globe,
+  Loader2,
+  MapPin,
+  Minus,
+  Moon,
+  Plus,
+  Search,
+  Star,
+  Tag,
+  Users,
+} from "lucide-react";
 import { useHotelSuggestions } from "../api/hotels.queries";
+import { useInitialData } from "@/features/home/api/home.queries";
 import type { HotelSuggestion, RoomOccupancy, SearchQuery } from "../types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +40,31 @@ const PRICE_TYPES = [
   { value: "dynamic", label: "Dynamic" },
 ] as const;
 
+/** Star-category options — mirrors b2b-front-main HotelCard starCategory select. */
+const STAR_CATEGORIES = [
+  { value: "any", label: "Any category" },
+  { value: "1", label: "1 Star" },
+  { value: "2", label: "2 Star" },
+  { value: "3", label: "3 Star" },
+  { value: "4", label: "4 Star" },
+  { value: "5", label: "5 Star" },
+  { value: "apartment", label: "Apartment" },
+  { value: "hostel", label: "Hostel" },
+  { value: "unrated", label: "Unrated" },
+] as const;
+
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+function nightsBetween(from: string, to: string): number {
+  return Math.max(1, Math.round((new Date(to).getTime() - new Date(from).getTime()) / MS_PER_DAY));
+}
+
+function addDays(date: string, days: number): string {
+  const d = new Date(date);
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
 function uaeDate(offsetDays: number): string {
   const base = new Date(
     new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Dubai" }).format(new Date()),
@@ -38,19 +77,52 @@ const SUGGESTION_LABEL: Record<string, string> = { CITY: "City", AREA: "Area", H
 
 export function HotelSearchBox({ className }: { className?: string }) {
   const navigate = useNavigate();
+  // Seed from the URL so the box on the results page reflects the active search
+  // (mirrors HotelCard reading searchParams) and re-search preserves all fields.
+  const [searchParams] = useSearchParams();
+  const param = (k: string) => searchParams.get(k) ?? "";
+  const paramDate = (k: string, fallback: string) => {
+    const v = searchParams.get(k);
+    return v ? v.slice(0, 10) : fallback;
+  };
 
-  const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState<HotelSuggestion | null>(null);
+  const [query, setQuery] = useState(() => param("localityValue"));
+  const [selected, setSelected] = useState<HotelSuggestion | null>(() => {
+    const raw = searchParams.get("searchQuery");
+    if (!raw) return null;
+    try {
+      const sq = JSON.parse(raw) as SearchQuery;
+      return { _id: (sq._id ?? sq.id) as string, suggestionType: sq.suggestionType };
+    } catch {
+      return null;
+    }
+  });
   const [open, setOpen] = useState(false);
   const blurTimer = useRef<number>(0);
   const { data, isFetching } = useHotelSuggestions(query);
 
-  const [fromDate, setFromDate] = useState(uaeDate(1));
-  const [toDate, setToDate] = useState(uaeDate(3));
-  const [rooms, setRooms] = useState<RoomOccupancy[]>([
-    { noOfAdults: 2, noOfChildren: 0, childrenAges: [] },
-  ]);
-  const [priceType, setPriceType] = useState("all");
+  const [fromDate, setFromDate] = useState(() => paramDate("fromDate", uaeDate(1)));
+  const [toDate, setToDate] = useState(() => paramDate("toDate", uaeDate(3)));
+  const [rooms, setRooms] = useState<RoomOccupancy[]>(() => {
+    const raw = searchParams.get("rooms");
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw) as RoomOccupancy[];
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch {
+        /* fall through to default */
+      }
+    }
+    return [{ noOfAdults: 2, noOfChildren: 0, childrenAges: [] }];
+  });
+  const [priceType, setPriceType] = useState(() => param("priceType") || "all");
+  const [nationality, setNationality] = useState(() => param("nationality"));
+  const [starCategory, setStarCategory] = useState(() => param("starCategory") || "any");
+
+  const { data: initialData } = useInitialData();
+  const countries = initialData?.countries ?? [];
+
+  const nights = nightsBetween(fromDate, toDate);
 
   const suggestions: HotelSuggestion[] = data
     ? [...data.cities, ...data.areas, ...data.hotels]
@@ -76,17 +148,23 @@ export function HotelSearchBox({ className }: { className?: string }) {
     params.set("toDate", new Date(toDate).toJSON());
     params.set("rooms", JSON.stringify(rooms));
     params.set("priceType", priceType);
+    if (nationality) params.set("nationality", nationality);
+    // priceType + nationality apply to the detail page too; starCategory is a
+    // results-list filter (backend search body ignores it), so only send it there.
     if (selected?.suggestionType === "HOTEL") {
       navigate(`/hotel/details/${selected.hotelId ?? selected._id}?${params.toString()}`);
       return;
     }
+    if (starCategory !== "any") params.set("starCategory", starCategory);
     if (selected) {
+      // Backend Joi allows only { id, suggestionType } — sending _id fails with
+      // "searchQuery._id is not allowed". id === _id for every suggestion type.
       const sq: SearchQuery = {
         id: selected._id,
-        _id: selected._id,
         suggestionType: selected.suggestionType,
       };
       params.set("searchQuery", JSON.stringify(sq));
+      if (query) params.set("localityValue", query); // restores the input text on re-search
     }
     navigate(`/hotel/avail?${params.toString()}`);
   };
@@ -96,7 +174,7 @@ export function HotelSearchBox({ className }: { className?: string }) {
 
   return (
     <div className={cn("rounded-2xl bg-card p-3 shadow-lg", className)}>
-      <div className="grid gap-2 lg:grid-cols-[1.6fr_1fr_1fr_1fr_0.9fr_auto]">
+      <div className="grid gap-2 lg:grid-cols-[1.6fr_1fr_1fr_0.8fr_1.1fr_auto]">
         {/* Destination */}
         <div className="relative">
           <div className="relative">
@@ -180,6 +258,24 @@ export function HotelSearchBox({ className }: { className?: string }) {
           />
         </div>
 
+        {/* Nights — sets check-out = check-in + n (mirrors HotelCard nights select) */}
+        <Select
+          value={String(nights)}
+          onValueChange={(v) => setToDate(addDays(fromDate, Number(v)))}
+        >
+          <SelectTrigger className="!h-12 w-full" aria-label="Number of nights">
+            <Moon className="size-4 shrink-0 text-muted-foreground" />
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="max-h-72">
+            {Array.from({ length: 90 }, (_, i) => i + 1).map((n) => (
+              <SelectItem key={n} value={String(n)}>
+                {n} night{n > 1 ? "s" : ""}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
         {/* Rooms & guests */}
         <Popover>
           <PopoverTrigger asChild>
@@ -258,11 +354,51 @@ export function HotelSearchBox({ className }: { className?: string }) {
           </PopoverContent>
         </Popover>
 
+        <Button className="h-12 px-6" onClick={search}>
+          <Search className="size-4" /> Search
+        </Button>
+      </div>
+
+      {/* Secondary filters — nationality, star category, rate type */}
+      <div className="mt-2 grid gap-2 sm:grid-cols-3">
+        {/* Nationality */}
+        <Select value={nationality || "any"} onValueChange={(v) => setNationality(v === "any" ? "" : v)}>
+          <SelectTrigger className="!h-11 w-full" aria-label="Guest nationality">
+            <Globe className="size-4 shrink-0 text-muted-foreground" />
+            <SelectValue placeholder="Nationality" />
+          </SelectTrigger>
+          <SelectContent className="max-h-72">
+            <SelectItem value="any">Any nationality</SelectItem>
+            {countries.map((c) =>
+              c.isocode ? (
+                <SelectItem key={c._id} value={c.isocode}>
+                  {c.countryName}
+                </SelectItem>
+              ) : null,
+            )}
+          </SelectContent>
+        </Select>
+
+        {/* Star category */}
+        <Select value={starCategory} onValueChange={setStarCategory}>
+          <SelectTrigger className="!h-11 w-full" aria-label="Star category">
+            <Star className="size-4 shrink-0 text-muted-foreground" />
+            <SelectValue placeholder="Star category" />
+          </SelectTrigger>
+          <SelectContent>
+            {STAR_CATEGORIES.map((s) => (
+              <SelectItem key={s.value} value={s.value}>
+                {s.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
         {/* Rate type — All / Static / Dynamic */}
         <Select value={priceType} onValueChange={setPriceType}>
-          <SelectTrigger className="!h-12 w-full" aria-label="Rate type">
+          <SelectTrigger className="!h-11 w-full" aria-label="Rate type">
             <Tag className="size-4 shrink-0 text-muted-foreground" />
-            <SelectValue placeholder="Type" />
+            <SelectValue placeholder="Rate type" />
           </SelectTrigger>
           <SelectContent>
             {PRICE_TYPES.map((t) => (
@@ -272,10 +408,6 @@ export function HotelSearchBox({ className }: { className?: string }) {
             ))}
           </SelectContent>
         </Select>
-
-        <Button className="h-12 px-6" onClick={search}>
-          <Search className="size-4" /> Search
-        </Button>
       </div>
     </div>
   );
