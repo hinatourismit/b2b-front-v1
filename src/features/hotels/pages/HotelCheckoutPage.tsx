@@ -84,7 +84,7 @@ export default function HotelCheckoutPage() {
       return;
     }
     roomRate.mutate(
-      { rateKey: decodeURIComponent(rateKey), searchId },
+      { hotelId, rateKey: decodeURIComponent(rateKey), searchId },
       {
         onSuccess: (data) => {
           setRate(data);

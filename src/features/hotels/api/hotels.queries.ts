@@ -37,8 +37,8 @@ export function useSingleSearch() {
 
 export function useRoomRate() {
   return useMutation({
-    mutationFn: ({ rateKey, searchId }: { rateKey: string; searchId: string }) =>
-      hotelsApi.roomRate(rateKey, searchId),
+    mutationFn: ({ hotelId, rateKey, searchId }: { hotelId: string; rateKey: string; searchId: string }) =>
+      hotelsApi.roomRate(hotelId, rateKey, searchId),
   });
 }
 

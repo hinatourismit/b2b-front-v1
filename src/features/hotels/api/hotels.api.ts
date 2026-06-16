@@ -48,8 +48,9 @@ export const hotelsApi = {
   singleSearch: async (body: SingleSearchBody) =>
     (await apiClient.post<SingleSearchResponse>(`${AVAIL}/single/search`, body)).data,
 
-  roomRate: async (rateKey: string, searchId: string) =>
-    (await apiClient.post<RoomRateResponse>(`${AVAIL}/booking/room-rate`, { rateKey, searchId })).data,
+  roomRate: async (hotelId: string, rateKey: string, searchId: string) =>
+    (await apiClient.post<RoomRateResponse>(`${AVAIL}/booking/room-rate`, { hotelId, rateKey, searchId }))
+      .data,
 
   /** wallet → order JSON; ccavenue → HTML page string */
   createOrder: async (body: CreateHotelOrderBody) =>
