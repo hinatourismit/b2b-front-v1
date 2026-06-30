@@ -8,3 +8,12 @@ export function useInitialData() {
     staleTime: Infinity, // countries/currencies are effectively static per session
   });
 }
+
+/** Admin-managed home banners — the dynamic source for the flash-promo popup. */
+export function useHomeBanners() {
+  return useQuery({
+    queryKey: ["home", "banners"],
+    queryFn: homeApi.getHomeBanners,
+    staleTime: 5 * 60 * 1000,
+  });
+}

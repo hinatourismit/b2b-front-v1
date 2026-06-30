@@ -137,6 +137,30 @@ with the agent before charging. A browse-time "own" can become "tctt" at purchas
 
 ---
 
+## 9a. Implementation status
+
+**Core — DONE** (in `api-server-main`, additive; logic runtime-verified, 7-assertion mock harness):
+- Engine override: `b2bAttractionHelper.activitySinglePriceDetails` gains a `tcttCost` param + branch
+  (mirrors the Dubai Parks cost override) — feeds the live TC price in as base cost so the existing
+  markup/VAT pipeline yields the agent-facing price (two-layer). Undefined for all existing callers →
+  no behavior change.
+- Resolver: `b2b/helpers/attraction/tcttResolver.js` — `resolveActivityPrice` (own-only / tctt-only /
+  both→cheapest by `lowPrice`) + `fetchTcttRate` (60s cache, **bypassed at booking** via `noCache`).
+  Resilience verified: tctt-only + 409 → `unavailable` (no throw); both + TC failure → fall back to own.
+  Returns `{...engineResult, source, tcttQuote?}` (tcttQuote = exact TC prices for slice-5 echo).
+- Wired: `b2bClientAttractionController.getSingleActivityPrice` (price recheck) branches on
+  `activity.tcttSource?.isTcttSourced`.
+
+**Wiring — DONE** (all three pricing touchpoints branch on `activity.tcttSource?.isTcttSourced`):
+- `getSingleActivityPrice` (price recheck) ✓
+- `getSingleAttraction` (detail) — each activity routed through the resolver ✓
+- `getTimeSlot` — TCTT slots fetched + mapped to the existing slot shape (slotId preserved) so the
+  markup loop applies Hina markup; safe fallback activity lookup for shells ✓
+- Listing works via the shells' synthetic `ticketPricing` hint (existing engine path).
+
+End-to-end live test deferred: needs a tctt-sourced activity in the DB (a slice-3 mapping write →
+on the test DB) + a sandbox call.
+
 ## 10. Feeds into
 
 **Slice 5** (booking + dual-wallet): calls the resolver with the final pax/slot, takes `source` +

@@ -106,6 +106,8 @@ export default function AttractionCheckoutPage() {
     const selectedActivities: SelectedActivityPayload[] = items.map((item) => {
       const slot = item.selectedTimeSlot
         ? {
+            // TCTT slots use slotId (+ raw TC price for the booking echo); Burj/Parmar use EventID.
+            slotId: item.selectedTimeSlot.slotId,
             EventID: item.selectedTimeSlot.EventID,
             EventTypeID: item.selectedTimeSlot.EventTypeID,
             EventName: item.selectedTimeSlot.EventName,
@@ -115,6 +117,8 @@ export default function AttractionCheckoutPage() {
             Status: item.selectedTimeSlot.Status,
             AdultPrice: item.selectedTimeSlot.AdultPrice,
             ChildPrice: item.selectedTimeSlot.ChildPrice,
+            tcAdultPrice: item.selectedTimeSlot.tcAdultPrice,
+            tcChildPrice: item.selectedTimeSlot.tcChildPrice,
             Available: item.selectedTimeSlot.Available,
           }
         : null;

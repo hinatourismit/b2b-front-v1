@@ -15,7 +15,31 @@ export default function HotelHomePage() {
           <p className="mt-2 text-sm text-primary-foreground/70">
             Live availability, instant confirmation and agent pricing across the globe.
           </p>
-          <HotelSearchBox className="mx-auto mt-7 max-w-5xl text-foreground" />
+
+          {/* ── GLASS HERO CARD ──────────────────────────────────
+             Frosted tray holding the (solid, multi-field) search panel +
+             trust strip. No `overflow-hidden` — it would clip the
+             destination-suggestions dropdown rendered absolutely below. */}
+          <div className="glass-hero relative z-30 mx-auto mt-7 max-w-5xl rounded-[1.6rem] p-2.5 sm:p-3">
+            {/* solid search panel stays legible against the frost */}
+            <HotelSearchBox className="text-foreground" />
+
+            {/* hairline divider */}
+            <div className="mx-auto mt-3.5 h-px w-[92%] bg-white/15" />
+
+            {/* trust strip */}
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-x-6 gap-y-1.5 text-[0.72rem] font-medium text-primary-foreground/75">
+              <span className="inline-flex items-center gap-1.5">
+                <span className="size-1.5 rounded-full bg-gold" /> Live availability
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="size-1.5 rounded-full bg-gold" /> Agent pricing
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="size-1.5 rounded-full bg-gold" /> Flexible payment
+              </span>
+            </div>
+          </div>
         </div>
       </section>
 

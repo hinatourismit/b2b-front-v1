@@ -21,10 +21,15 @@ export function useAttractionCategories() {
   });
 }
 
-export function useAttractionsList(destination: string, category: string) {
+export function useAttractionsList(
+  destination: string,
+  category: string,
+  options?: { enabled?: boolean },
+) {
   return useQuery({
     queryKey: [...KEY, "list", destination, category],
     queryFn: () => attractionsApi.getAll(destination, category),
+    enabled: options?.enabled ?? true,
   });
 }
 

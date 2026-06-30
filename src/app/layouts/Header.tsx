@@ -30,16 +30,33 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 
 function BrandMark() {
+  const [first, ...rest] = branding.name.split(" ");
   return (
-    <Link to="/" className="flex items-center gap-2.5">
-      <div className="flex size-9 items-center justify-center rounded-xl bg-primary shadow-sm">
-        <span className="font-display text-lg font-semibold text-primary-foreground">
-          {branding.shortName.charAt(0)}
-        </span>
+    <Link to="/" className="group flex items-center gap-2.5">
+      {/* custom monogram: "H" pillars bridged by a gold journey-arc → destination dot */}
+      <div className="relative flex size-9 items-center justify-center rounded-[11px] bg-[linear-gradient(140deg,#21527e_0%,#347bb7_100%)] shadow-[0_6px_16px_-6px_rgba(52,123,183,0.85)] ring-1 ring-white/15 transition-transform duration-300 group-hover:scale-[1.04]">
+        <div className="pointer-events-none absolute inset-px rounded-[10px] bg-[linear-gradient(180deg,rgba(255,255,255,0.2),transparent_55%)]" />
+        <svg viewBox="0 0 24 24" fill="none" className="relative size-5">
+          <path d="M7 5.5V18.5" stroke="#fff" strokeWidth="2.3" strokeLinecap="round" />
+          <path d="M17 5.5V18.5" stroke="#fff" strokeWidth="2.3" strokeLinecap="round" />
+          <path
+            d="M7 13.6C10 9.4 14 9.4 17 12"
+            stroke="var(--gold)"
+            strokeWidth="2.1"
+            strokeLinecap="round"
+          />
+          <circle cx="17" cy="12" r="1.7" fill="var(--gold)" />
+        </svg>
       </div>
-      <div className="leading-tight">
-        <span className="font-display text-lg font-semibold tracking-tight">{branding.name}</span>
-        <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-gold">
+      <div className="leading-none">
+        <span className="block font-display text-[1.12rem] font-semibold tracking-tight">
+          <span className="text-foreground">{first}</span>
+          {rest.length > 0 && (
+            <span className="font-medium text-muted-foreground"> {rest.join(" ")}</span>
+          )}
+        </span>
+        <span className="mt-1 flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.22em] text-gold">
+          <span className="h-px w-3.5 bg-gold/50" />
           B2B Portal
         </span>
       </div>

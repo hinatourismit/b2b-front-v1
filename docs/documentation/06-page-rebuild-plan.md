@@ -44,7 +44,7 @@
 
 | Page | Route | APIs Used | Priority | Notes |
 | --- | --- | --- | --- | --- |
-| Attractions home | `/attraction` | GET `/resellers/client/attraction/banners`, GET `/home/sections`, GET `/resellers/client/attraction/search/list` | P1 | Search-first + curated sections |
+| Attractions home | `/attraction` | GET `/resellers/client/attraction/banners`, GET `/home/sections`, GET `/resellers/client/attraction/search/list`, GET `/resellers/client/attraction/all` (×2: Dubai + Abu Dhabi) | P1 | Search-first + curated sections. Glass hero + travel motif; **"Popular in Dubai & Abu Dhabi"** reuses the listing endpoint (no new contract), interleaves both cities, self-hides if empty |
 | Listing | `/attractions/:slug` | GET `/resellers/client/attraction/all` | P1 | By destination/category, infinite scroll |
 | Details | `/attractions/details/:id` | GET `/resellers/client/attraction/single/:id`, POST `.../timeslot`, POST `.../single/price/:activityId` | P1 | Activity selector, date + timeslot, pax pricing, add-to-cart |
 | Cart / checkout | `/attractions/payment` | POST `/orders/create`, POST `/orders/complete` (wallet), CCAvenue via `/orders/ccavenue/capture` return | P1 | **Unified order flow** (supports multiple activities); promo-code check |

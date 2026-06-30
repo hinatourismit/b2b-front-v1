@@ -24,6 +24,25 @@ export interface InitialData {
   [key: string]: unknown;
 }
 
+/**
+ * One entry of the admin-managed home banner set (model `B2BBanner`, doc
+ * `name:"home"`). Admins control these via the existing CMS endpoints
+ * `/admin/frontend/b2b/home/banner/{add,edit,delete}`; the storefront reads
+ * them from `GET /b2b/home/banners` (returns the `banners[]` array, already
+ * filtered to non-deleted). Shape verified against `b2bBanner.model.js`.
+ */
+export interface HomeBanner {
+  _id?: string;
+  title?: string;
+  body?: string;
+  image: string;
+  isButton?: boolean;
+  buttonText?: string;
+  buttonUrl?: string;
+}
+
 export const homeApi = {
   getInitialData: async () => (await apiClient.get<InitialData>(`${BASE}/initial-data`)).data,
+
+  getHomeBanners: async () => (await apiClient.get<HomeBanner[]>(`${BASE}/banners`)).data,
 };

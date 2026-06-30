@@ -80,6 +80,203 @@
   }
 }
 
+/* ─── Glass (frosted) surfaces ─────────────────────────────────────────────
+   Use ONLY on marketing/discovery surfaces over imagery or the hero gradient
+   (home hero, image cards, overlays). Keep transactional UI — tables, forms,
+   wallet, quotations — on solid surfaces for contrast + performance.
+   `.glass-hero` = light frost for dark backgrounds; `.glass-chip` = lighter
+   pill. Both degrade to a solid-enough tint where backdrop-filter is missing. */
+.glass-hero {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px) saturate(125%);
+  -webkit-backdrop-filter: blur(12px) saturate(125%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow:
+    0 24px 60px -30px rgba(8, 24, 40, 0.6),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.18); /* faint top-edge highlight */
+}
+
+.glass-chip {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(5px) saturate(120%);
+  -webkit-backdrop-filter: blur(5px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+/* No backdrop-filter (older browsers): fall back to an opaque-enough tint so
+   text never loses contrast. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass-hero {
+    background: rgba(18, 46, 78, 0.86);
+  }
+  .glass-chip {
+    background: rgba(18, 46, 78, 0.7);
+  }
+}
+
+/* Respect reduced-transparency preference (accessibility) */
+@media (prefers-reduced-transparency: reduce) {
+  .glass-hero {
+    background: rgba(18, 46, 78, 0.92);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .glass-chip {
+    background: rgba(18, 46, 78, 0.78);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+/* ─── Hero ambient motion ──────────────────────────────────────────────────
+   Slow, low-amplitude drift on the decorative aura glows + a gentle float on
+   the watermark glyph. Ambient only — never moves content. Disabled under
+   reduced-motion. */
+@keyframes heroAuraGold {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-26px, 20px, 0) scale(1.07); }
+}
+@keyframes heroAuraDeep {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(28px, -18px, 0) scale(1.06); }
+}
+@keyframes heroGlyphFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-14px) rotate(5deg); }
+}
+
+.hero-aura-gold { animation: heroAuraGold 15s ease-in-out infinite; will-change: transform; }
+.hero-aura-deep { animation: heroAuraDeep 19s ease-in-out infinite; will-change: transform; }
+.hero-glyph { animation: heroGlyphFloat 9s ease-in-out infinite; transform-origin: center; will-change: transform; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-aura-gold, .hero-aura-deep, .hero-glyph { animation: none; }
+}
+
+/* ─── Hero travel motif: drifting clouds + twinkling stars ──────────────────
+   Decorative SVG behind the hero content. */
+@keyframes heroTwinkle {
+  0%, 100% { opacity: 0.12; }
+  50% { opacity: 0.9; }
+}
+@keyframes heroCloudDrift {
+  from { transform: translateX(-7%); }
+  to { transform: translateX(7%); }
+}
+
+.hero-star { animation: heroTwinkle 3.2s ease-in-out infinite; }
+.hero-cloud { animation: heroCloudDrift 24s ease-in-out infinite alternate; will-change: transform; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-star, .hero-cloud { animation: none; }
+}
+
+/* ─── Hero skyline (Dubai / Abu Dhabi landmarks) ────────────────────────────
+   The Ain Dubai observation wheel slowly turns; its spokes rotate about the
+   hub at user-space (920, 150) within the skyline SVG's viewBox. */
+@keyframes ainSpin {
+  to { transform: rotate(360deg); }
+}
+.ain-wheel {
+  transform-box: view-box;
+  transform-origin: 920px 150px;
+  animation: ainSpin 60s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ain-wheel { animation: none; }
+}
+
+/* ─── Hero skydiver (Skydive Dubai nod) ─────────────────────────────────────
+   Choreographed into a shared 28s cycle with the city bus so only ONE moving
+   object is on screen at a time: skydive plays in the first ~9s (plane crosses,
+   diver drops accelerating down a left→right diagonal), then both hold offscreen
+   while the bus takes its turn. Acceleration is baked into the keyframe spacing
+   (so timing stays linear). The inner group sways about the canopy top. */
+@keyframes skydiveDrop {
+  0% { transform: translate(0, -4px); opacity: 0; }
+  9% { transform: translate(0, -4px); opacity: 0; } /* wait at the plane */
+  11% { transform: translate(0, 6px); opacity: 1; } /* exit the plane */
+  17% { transform: translate(5vw, 158px); opacity: 1; } /* FREEFALL — fast, near-vertical */
+  20% { transform: translate(7vw, 178px); opacity: 1; } /* chute opens → decelerate */
+  32% { transform: translate(50vw, 286px); opacity: 1; } /* slow glide, drift right */
+  34% { transform: translate(56vw, 300px); opacity: 0; } /* exit */
+  100% { transform: translate(56vw, 300px); opacity: 0; } /* hold offscreen */
+}
+/* freefall figure — shown during the fall, gone as the chute opens (slight
+   overlap with the canopy for a seamless handoff) */
+@keyframes skydiveFreefall {
+  0%, 9% { opacity: 0; }
+  11% { opacity: 0.9; }
+  17% { opacity: 0.9; }
+  19.5% { opacity: 0; }
+  100% { opacity: 0; }
+}
+/* canopy deploy — packed through freefall, then snaps open and holds */
+@keyframes canopyDeploy {
+  0%, 17% { opacity: 0; transform: scale(0.12); }
+  20% { opacity: 1; transform: scale(1.06); } /* snap open */
+  22% { transform: scale(1); }
+  32% { opacity: 1; transform: scale(1); }
+  34% { opacity: 0; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.12); }
+}
+@keyframes skydiveSway {
+  0%, 100% { transform: rotate(-9deg); }
+  50% { transform: rotate(9deg); }
+}
+/* jump plane crosses in the first 30% of the cycle, then waits offscreen */
+@keyframes planeFly {
+  0% { transform: translateX(-14vw); }
+  30% { transform: translateX(104vw); }
+  100% { transform: translateX(104vw); }
+}
+.jump-plane { animation: planeFly 28s linear infinite; will-change: transform; }
+.skydiver { animation: skydiveDrop 28s linear infinite; will-change: transform, opacity; }
+.skydiver-freefall { animation: skydiveFreefall 28s linear infinite; }
+.skydiver-canopy {
+  transform-box: fill-box;
+  transform-origin: 50% 62%; /* deploy outward from the jumper */
+  animation: canopyDeploy 28s linear infinite;
+  will-change: transform, opacity;
+}
+.skydiver-sway {
+  transform-box: fill-box;
+  transform-origin: 50% 0%;
+  animation: skydiveSway 2.6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .jump-plane { animation: none; transform: translateX(8vw); }
+  .skydiver { animation: none; opacity: 1; transform: translate(22vw, 150px); }
+  .skydiver-freefall { animation: none; opacity: 0; }
+  .skydiver-canopy { animation: none; opacity: 1; transform: scale(1); }
+  .skydiver-sway { animation: none; }
+}
+
+/* ─── Hero city tour bus ────────────────────────────────────────────────────
+   Shares the skydiver's 28s cycle: waits offscreen while the skydive plays,
+   then rolls left→right along the street (≈48%–84% of the cycle) once the sky
+   is clear, then waits again — so the two actions alternate with gaps. */
+@keyframes busDrive {
+  0% { transform: translateX(-20vw); }
+  48% { transform: translateX(-20vw); } /* wait offscreen during the skydive */
+  84% { transform: translateX(104vw); } /* drive across */
+  100% { transform: translateX(104vw); } /* wait offscreen */
+}
+@keyframes busJiggle {
+  0%, 100% { transform: translateY(0) rotate(-0.4deg); }
+  50% { transform: translateY(-1.5px) rotate(0.4deg); }
+}
+.city-bus { animation: busDrive 28s linear infinite; will-change: transform; }
+.city-bus-jiggle {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: busJiggle 0.5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .city-bus { animation: none; transform: translateX(38vw); }
+  .city-bus-jiggle { animation: none; }
+}
+
 /* subtle grain so large sand surfaces don't feel flat */
 .grain::before {
   content: "";

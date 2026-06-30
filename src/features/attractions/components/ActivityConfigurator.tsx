@@ -274,6 +274,12 @@ export function ActivityConfigurator({
       });
       return;
     }
+    if (!displayPrice || displayPrice <= 0) {
+      toast.error("This activity isn't available for the selected date", {
+        description: "No price is available — it can't be added to the cart.",
+      });
+      return;
+    }
     const item: CartItem = {
       ...activity,
       isChecked: true,
@@ -434,19 +440,25 @@ export function ActivityConfigurator({
             <div className="flex flex-wrap gap-2">
               {/* old card shows time range + adult/child prices (SlotBookingComponent.jsx:140-165) */}
               {slots.map((slot, i) => {
-                const selected = selectedSlot?.EventID === slot.EventID;
+                // Identity works for TCTT (slotId) and Burj/Parmar (EventID); falls back to time.
+                const identity = (s: TimeSlot | null) =>
+                  s?.slotId ?? s?.EventID ?? s?.StartDateTime;
+                const selected = !!selectedSlot && identity(selectedSlot) === identity(slot);
                 return (
                   <button
-                    key={slot.EventID ?? i}
+                    key={slot.slotId ?? slot.EventID ?? i}
                     type="button"
                     onClick={() => setSelectedSlot(slot)}
                     className={cn(
-                      "rounded-lg border px-3 py-2 text-left transition-colors",
+                      "rounded-lg border-2 px-3 py-2 text-left transition-colors",
                       selected
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "bg-card hover:bg-accent",
+                        ? "border-primary bg-primary text-primary-foreground ring-2 ring-primary/40 ring-offset-1"
+                        : "border-border bg-card hover:border-primary/50 hover:bg-accent",
                     )}
                   >
+                    {selected && (
+                      <span className="float-right text-[10px] font-semibold">✓ Selected</span>
+                    )}
                     <span className="block text-xs font-semibold">
                       {formatTime(slot.StartDateTime)} – {formatTime(slot.EndDateTime)}
                     </span>
@@ -469,8 +481,14 @@ export function ActivityConfigurator({
         </div>
       )}
 
-      <div className="mt-5 flex justify-end">
-        <Button onClick={addToCart} disabled={priceCheck.isPending}>
+      <div className="mt-5 flex flex-col items-end gap-1">
+        {!priceCheck.isPending && (!displayPrice || displayPrice <= 0) && (
+          <span className="text-xs text-red-500">Not available for the selected date</span>
+        )}
+        <Button
+          onClick={addToCart}
+          disabled={priceCheck.isPending || !displayPrice || displayPrice <= 0}
+        >
           <ShoppingCart className="size-4" /> Add to cart
         </Button>
       </div>

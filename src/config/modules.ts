@@ -57,7 +57,7 @@ export const MODULES = {
     icon: StampIcon,
     home: "/visa",
     priority: 3,
-    enabled: true,
+    enabled: false, // hidden from nav for now (still registered)
   },
   a2a: {
     flag: "showA2a",
@@ -73,7 +73,7 @@ export const MODULES = {
     icon: FileSpreadsheet,
     home: "/quotation",
     priority: 5,
-    enabled: true,
+    enabled: false, // hidden from nav for now (still registered)
   },
   insurance: {
     flag: "showInsurance",

@@ -39,6 +39,7 @@ export interface AttractionsListResponse {
 }
 
 export interface TimeSlot {
+  slotId?: string; // TCTT slots use slotId (Burj/Parmar use EventID)
   EventID?: string;
   EventTypeID?: string;
   EventName?: string;
@@ -49,6 +50,8 @@ export interface TimeSlot {
   Available?: string;
   AdultPrice?: number;
   ChildPrice?: number;
+  tcAdultPrice?: number; // raw TC slot price (TCTT) — echoed at booking
+  tcChildPrice?: number;
   [key: string]: unknown;
 }
 
@@ -198,9 +201,10 @@ export interface SelectedActivityPayload {
   infantCount: number;
   hoursCount: number | "";
   transferType: string;
-  /** only the 10 whitelisted slot keys */
+  /** whitelisted slot keys (+ slotId / raw TC price for TCTT timeslot booking) */
   slot?: Pick<
     TimeSlot,
+    | "slotId"
     | "EventID"
     | "EventTypeID"
     | "EventName"
@@ -210,6 +214,8 @@ export interface SelectedActivityPayload {
     | "Status"
     | "AdultPrice"
     | "ChildPrice"
+    | "tcAdultPrice"
+    | "tcChildPrice"
     | "Available"
   > | null;
   isPromoAdded?: boolean;

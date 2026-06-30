@@ -1,0 +1,360 @@
+
+===== B2B SURFACE (vs b2b-front-main + b2b-hina-tourism) =====
+Total distinct endpoints (method+path): 236
+Endpoints with NO frontend caller: 91 (39%)
+## mount /a2a/orders
+  PATCH  /api/v1/b2b/a2a/orders/:orderId/cancel/:passengerId    [b2b/routes/a2a/b2bA2aOrderRouter.js]
+  GET    /api/v1/b2b/a2a/orders/:orderId/single/:passengerId    [b2b/routes/a2a/b2bA2aOrderRouter.js]
+## mount /api/hotels/availabilities
+  POST   /api/v1/b2b/api/hotels/availabilities/search    [b2b/routes/hotelApi/b2bHotelApiAvailabilityRouter.js]
+  GET    /api/v1/b2b/api/hotels/availabilities/single/:hotelId    [b2b/routes/hotelApi/b2bHotelApiAvailabilityRouter.js]
+  POST   /api/v1/b2b/api/hotels/availabilities/single/search    [b2b/routes/hotelApi/b2bHotelApiAvailabilityRouter.js]
+## mount /api/hotels/orders
+  POST   /api/v1/b2b/api/hotels/orders/:orderId/complete    [b2b/routes/hotelApi/b2bHotelOrderApiRouter.js]
+  GET    /api/v1/b2b/api/hotels/orders/all-orders    [b2b/routes/hotelApi/b2bHotelOrderApiRouter.js]
+  POST   /api/v1/b2b/api/hotels/orders/cancel/:orderId    [b2b/routes/hotelApi/b2bHotelOrderApiRouter.js]
+  POST   /api/v1/b2b/api/hotels/orders/create    [b2b/routes/hotelApi/b2bHotelOrderApiRouter.js]
+  GET    /api/v1/b2b/api/hotels/orders/single-order/:orderId    [b2b/routes/hotelApi/b2bHotelOrderApiRouter.js]
+  GET    /api/v1/b2b/api/hotels/orders/voucher/:orderId    [b2b/routes/hotelApi/b2bHotelOrderApiRouter.js]
+## mount /api/reseller/auth
+  POST   /api/v1/b2b/api/reseller/auth/login    [b2b/routes/apiGlobal/b2bResellerApiAuthRouter.js]
+  GET    /api/v1/b2b/api/reseller/auth/token    [b2b/routes/apiGlobal/b2bResellerApiAuthRouter.js]
+## mount /attraction-api
+  GET    /api/v1/b2b/attraction-api/attractions    [b2b/routes/attractionsApi/b2bApiAttractionsRouter.js]
+  POST   /api/v1/b2b/attraction-api/attractions/price    [b2b/routes/attractionsApi/b2bApiAttractionsRouter.js]
+  GET    /api/v1/b2b/attraction-api/categories    [b2b/routes/attractionsApi/b2bApiAttractionsRouter.js]
+  GET    /api/v1/b2b/attraction-api/destinations    [b2b/routes/attractionsApi/b2bApiAttractionsRouter.js]
+  POST   /api/v1/b2b/attraction-api/time-slots    [b2b/routes/attractionsApi/b2bApiAttractionsRouter.js]
+## mount /attraction-api/orders
+  GET    /api/v1/b2b/attraction-api/orders/all    [b2b/routes/attractionsApi/b2bApiAttractionsOrderRouter.js]
+  POST   /api/v1/b2b/attraction-api/orders/complete/:referenceNumber    [b2b/routes/attractionsApi/b2bApiAttractionsOrderRouter.js]
+  POST   /api/v1/b2b/attraction-api/orders/create    [b2b/routes/attractionsApi/b2bApiAttractionsOrderRouter.js]
+  GET    /api/v1/b2b/attraction-api/orders/single/:referenceNumber    [b2b/routes/attractionsApi/b2bApiAttractionsOrderRouter.js]
+  GET    /api/v1/b2b/attraction-api/orders/tickets/:referenceNumber/item/:orderItemId    [b2b/routes/attractionsApi/b2bApiAttractionsOrderRouter.js]
+## mount /attractions/orders
+  PATCH  /api/v1/b2b/attractions/orders/:orderId/cancel/:activityId    [b2b/routes/attraction/b2bAttractionOrdersRoute.js]
+  POST   /api/v1/b2b/attractions/orders/cancel    [b2b/routes/attraction/b2bAttractionOrdersRoute.js]
+  POST   /api/v1/b2b/attractions/orders/ccavenue/capture    [b2b/routes/attraction/b2bAttractionOrdersRoute.js]
+  POST   /api/v1/b2b/attractions/orders/complete-tabby    [b2b/routes/attraction/b2bAttractionOrdersRoute.js]
+## mount /attractions/tickets
+  GET    /api/v1/b2b/attractions/tickets/single/:ticketId    [b2b/routes/attraction/b2bAttractionTicketsRouter.js]
+## mount /client/flight/markup
+  DELETE /api/v1/b2b/client/flight/markup/delete/:id    [b2b/routes/flight/b2bClientFlightMarkupRouter.js]
+  GET    /api/v1/b2b/client/flight/markup/list    [b2b/routes/flight/b2bClientFlightMarkupRouter.js]
+  PATCH  /api/v1/b2b/client/flight/markup/upsert    [b2b/routes/flight/b2bClientFlightMarkupRouter.js]
+## mount /home
+  GET    /api/v1/b2b/home/about-us    [b2b/routes/global/b2bHomeRouter.js]
+  GET    /api/v1/b2b/home/banners    [b2b/routes/global/b2bHomeRouter.js]
+  GET    /api/v1/b2b/home/contact-details    [b2b/routes/global/b2bHomeRouter.js]
+  GET    /api/v1/b2b/home/sections    [b2b/routes/global/b2bHomeRouter.js]
+## mount /hotels
+  GET    /api/v1/b2b/hotels/suggested-hotels    [b2b/routes/hotel/b2bHotelsRouter.js]
+## mount /hotels/orders
+  POST   /api/v1/b2b/hotels/orders/ccavenue/capture    [b2b/routes/hotel/b2bHotelOrdersRouter.js]
+  POST   /api/v1/b2b/hotels/orders/payments/ccavenue/capture    [b2b/routes/hotel/b2bHotelOrdersRouter.js]
+## mount /orders
+  GET    /api/v1/b2b/orders/all/sheet    [b2b/routes/order/b2bOrderRouter.js]
+  POST   /api/v1/b2b/orders/booking/room-rate    [b2b/routes/order/b2bOrderRouter.js]
+  PATCH  /api/v1/b2b/orders/cancel    [b2b/routes/order/b2bOrderRouter.js]
+  POST   /api/v1/b2b/orders/ccavenue/capture    [b2b/routes/order/b2bOrderRouter.js]
+  POST   /api/v1/b2b/orders/complete    [b2b/routes/order/b2bOrderRouter.js]
+  POST   /api/v1/b2b/orders/create    [b2b/routes/order/b2bOrderRouter.js]
+  GET    /api/v1/b2b/orders/invoice/:orderId    [b2b/routes/order/b2bOrderRouter.js]
+  GET    /api/v1/b2b/orders/list/all    [b2b/routes/order/b2bOrderRouter.js]
+  GET    /api/v1/b2b/orders/single/:id    [b2b/routes/order/b2bOrderRouter.js]
+## mount /promo-code
+  POST   /api/v1/b2b/promo-code/booking/room-rate    [b2b/routes/promoCode/b2bPromoCodeRouter.js]
+  POST   /api/v1/b2b/promo-code/eligibilty/check    [b2b/routes/promoCode/b2bPromoCodeRouter.js]
+  GET    /api/v1/b2b/promo-code/list    [b2b/routes/promoCode/b2bPromoCodeRouter.js]
+## mount /quotations/hotels
+  POST   /api/v1/b2b/quotations/hotels/room-type/rate    [b2b/routes/quotation/b2bQuotationHotelRouter.js]
+## mount /resellers/auth
+  DELETE /api/v1/b2b/resellers/auth/delete    [b2b/routes/global/b2bResellersAuthRouter.js]
+## mount /resellers/client/attraction
+  GET    /api/v1/b2b/resellers/client/attraction/banners    [b2b/routes/attraction/b2bClientAttractionRoute.js]
+## mount /resellers/wallet
+  POST   /api/v1/b2b/resellers/wallet/ccavenue/capture    [b2b/routes/global/b2bWalletRouter.js]
+  POST   /api/v1/b2b/resellers/wallet/razorpay/capture    [b2b/routes/global/b2bWalletRouter.js]
+## mount /settings
+  POST   /api/v1/b2b/settings/get-in-touch    [b2b/routes/global/b2bFrontendRouter.js]
+  GET    /api/v1/b2b/settings/privacy-and-policies    [b2b/routes/global/b2bFrontendRouter.js]
+  GET    /api/v1/b2b/settings/terms-and-conditions    [b2b/routes/global/b2bFrontendRouter.js]
+## mount /subagent/flight/markup
+  GET    /api/v1/b2b/subagent/flight/markup/list/:subAgentId    [b2b/routes/flight/b2bSubAgentFlightMarkupRouter.js]
+  PATCH  /api/v1/b2b/subagent/flight/markup/upsert    [b2b/routes/flight/b2bSubAgentFlightMarkupRouter.js]
+## mount /tour-packages
+  GET    /api/v1/b2b/tour-packages/all    [b2b/routes/tourPackage/b2bTourPackagesRouter.js]
+  GET    /api/v1/b2b/tour-packages/single/:id    [b2b/routes/tourPackage/b2bTourPackagesRouter.js]
+## mount /tour-packages/enquiries
+  GET    /api/v1/b2b/tour-packages/enquiries/all    [b2b/routes/tourPackage/b2bTourPackageEnquiryRouter.js]
+  POST   /api/v1/b2b/tour-packages/enquiries/new    [b2b/routes/tourPackage/b2bTourPackageEnquiryRouter.js]
+## mount /transactions
+  GET    /api/v1/b2b/transactions/all/sheet    [b2b/routes/global/b2bTransactionsRouter.js]
+  GET    /api/v1/b2b/transactions/sub-agent/:resellerId    [b2b/routes/global/b2bTransactionsRouter.js]
+## mount /transfer
+  GET    /api/v1/b2b/transfer/banners    [b2b/routes/transfer/b2bTransferAvailabilitiesRouter.js]
+  POST   /api/v1/b2b/transfer/booking/room-rate    [b2b/routes/transfer/b2bTransferAvailabilitiesRouter.js]
+  POST   /api/v1/b2b/transfer/search    [b2b/routes/transfer/b2bTransferAvailabilitiesRouter.js]
+  GET    /api/v1/b2b/transfer/search/suggestions    [b2b/routes/transfer/b2bTransferAvailabilitiesRouter.js]
+  GET    /api/v1/b2b/transfer/single/:hotelId    [b2b/routes/transfer/b2bTransferAvailabilitiesRouter.js]
+## mount /transfer/client/markup
+  GET    /api/v1/b2b/transfer/client/markup/get-all-transfer    [b2b/routes/transfer/b2bTransferClientMarkupRouter.js]
+  GET    /api/v1/b2b/transfer/client/markup/get-all-vehicle/:transferId    [b2b/routes/transfer/b2bTransferClientMarkupRouter.js]
+  POST   /api/v1/b2b/transfer/client/markup/update-all-transfer-profile/:id    [b2b/routes/transfer/b2bTransferClientMarkupRouter.js]
+  POST   /api/v1/b2b/transfer/client/markup/update-single-transfer-profile    [b2b/routes/transfer/b2bTransferClientMarkupRouter.js]
+  POST   /api/v1/b2b/transfer/client/markup/update-transfer-profile/:id    [b2b/routes/transfer/b2bTransferClientMarkupRouter.js]
+## mount /transfer/order
+  PATCH  /api/v1/b2b/transfer/order/:orderId/cancel/:transferId    [b2b/routes/transfer/b2bTransferOrderRouter.js]
+  POST   /api/v1/b2b/transfer/order/ccavenue/capture    [b2b/routes/transfer/b2bTransferOrderRouter.js]
+  POST   /api/v1/b2b/transfer/order/complete    [b2b/routes/transfer/b2bTransferOrderRouter.js]
+  POST   /api/v1/b2b/transfer/order/create    [b2b/routes/transfer/b2bTransferOrderRouter.js]
+  GET    /api/v1/b2b/transfer/order/invoice/:orderId    [b2b/routes/transfer/b2bTransferOrderRouter.js]
+  GET    /api/v1/b2b/transfer/order/list/all    [b2b/routes/transfer/b2bTransferOrderRouter.js]
+  GET    /api/v1/b2b/transfer/order/single/:id    [b2b/routes/transfer/b2bTransferOrderRouter.js]
+  GET    /api/v1/b2b/transfer/order/ticket/:orderId    [b2b/routes/transfer/b2bTransferOrderRouter.js]
+## mount /transfer/sub-agent/markup
+  GET    /api/v1/b2b/transfer/sub-agent/markup/get-all-transfer    [b2b/routes/transfer/b2bTransferSubAgentMarkupRouter.js]
+  GET    /api/v1/b2b/transfer/sub-agent/markup/get-all-vehicle/:transferId/:resellerId    [b2b/routes/transfer/b2bTransferSubAgentMarkupRouter.js]
+  POST   /api/v1/b2b/transfer/sub-agent/markup/update-all-transfer-profile/:id    [b2b/routes/transfer/b2bTransferSubAgentMarkupRouter.js]
+  POST   /api/v1/b2b/transfer/sub-agent/markup/update-single-transfer-profile    [b2b/routes/transfer/b2bTransferSubAgentMarkupRouter.js]
+  POST   /api/v1/b2b/transfer/sub-agent/markup/update-transfer-profile/:id    [b2b/routes/transfer/b2bTransferSubAgentMarkupRouter.js]
+## mount /visa
+  GET    /api/v1/b2b/visa/list    [b2b/routes/visa/b2bVisaListRouter.js]
+## mount /visa/enquiry
+  POST   /api/v1/b2b/visa/enquiry/add    [b2b/routes/visa/b2bVisaEnquiryRouter.js]
+
+===== ADMIN SURFACE (vs admin-front-main) =====
+Total distinct endpoints (method+path): 1274
+Endpoints with NO frontend caller: 168 (13%)
+## mount /a2a
+  PATCH  /api/v1/admin/a2a/update/:id    [admin/routes/a2a/admA2aRouter.js]
+## mount /a2a/orders
+  PATCH  /api/v1/admin/a2a/orders/:orderId/confirm/:passengerId    [admin/routes/a2a/admA2aOrderRouter.js]
+## mount /account/expense-entry
+  GET    /api/v1/admin/account/expense-entry/all/list    [admin/routes/accounts/admExpenseEntryRouter.js]
+  POST   /api/v1/admin/account/expense-entry/check    [admin/routes/accounts/admExpenseEntryRouter.js]
+  DELETE /api/v1/admin/account/expense-entry/delete/:id    [admin/routes/accounts/admExpenseEntryRouter.js]
+  GET    /api/v1/admin/account/expense-entry/ledger/:ledgerId    [admin/routes/accounts/admExpenseEntryRouter.js]
+## mount /account/final
+  GET    /api/v1/admin/account/final/profit-loss    [admin/routes/accounts/PLAndBalanceSheet.js]
+## mount /account/group-elements
+  GET    /api/v1/admin/account/group-elements/all/list    [admin/routes/accounts/admAccountGroupElementRouter.js]
+  DELETE /api/v1/admin/account/group-elements/delete/:id    [admin/routes/accounts/admAccountGroupElementRouter.js]
+## mount /account/manual-payment
+  DELETE /api/v1/admin/account/manual-payment/delete/:id    [admin/routes/accounts/admManualPaymentRouter.js]
+  GET    /api/v1/admin/account/manual-payment/ledger/:ledgerId    [admin/routes/accounts/admManualPaymentRouter.js]
+## mount /account/purchase-payment
+  DELETE /api/v1/admin/account/purchase-payment/delete/:id    [admin/routes/accounts/admAccountsPurchasePaymentRouter.js]
+  POST   /api/v1/admin/account/purchase-payment/import    [admin/routes/accounts/admAccountsPurchasePaymentRouter.js]
+## mount /account/sales-payment
+  DELETE /api/v1/admin/account/sales-payment/delete/:id    [admin/routes/accounts/admSalesPaymentRouter.js]
+  POST   /api/v1/admin/account/sales-payment/import    [admin/routes/accounts/admSalesPaymentRouter.js]
+  GET    /api/v1/admin/account/sales-payment/ledger/:ledgerId    [admin/routes/accounts/admSalesPaymentRouter.js]
+## mount /attractions
+  PATCH  /api/v1/admin/attractions/activities/profiles/update/:activityId    [admin/routes/attraction/admAttractionsRouter.js]
+  GET    /api/v1/admin/attractions/update/slug    [admin/routes/attraction/admAttractionsRouter.js]
+## mount /attractions/b2c/markups
+  GET    /api/v1/admin/attractions/b2c/markups/all    [admin/routes/attraction/admB2cAttractionMarkupRouter.js]
+  DELETE /api/v1/admin/attractions/b2c/markups/delete/:id    [admin/routes/attraction/admB2cAttractionMarkupRouter.js]
+## mount /attractions/dashboard
+  GET    /api/v1/admin/attractions/dashboard    [admin/routes/attraction/admAttractionDashboardRouter.js]
+## mount /attractions/orders
+  PATCH  /api/v1/admin/attractions/orders/b2b/:orderId/cancel-activity/:activityId    [admin/routes/attraction/admAttractionsOrdersRouter.js]
+  GET    /api/v1/admin/attractions/orders/b2b/:orderId/orderItems/:activityId/tickets    [admin/routes/attraction/admAttractionsOrdersRouter.js]
+  PATCH  /api/v1/admin/attractions/orders/b2b/approve/canel-request/:cancellationId    [admin/routes/attraction/admAttractionsOrdersRouter.js]
+  PATCH  /api/v1/admin/attractions/orders/b2c/:orderId/cancel-activity/:activityId    [admin/routes/attraction/admAttractionsOrdersRouter.js]
+  PATCH  /api/v1/admin/attractions/orders/b2c/approve/canel-request/:cancellationId    [admin/routes/attraction/admAttractionsOrdersRouter.js]
+## mount /attractions/tctt
+  POST   /api/v1/admin/attractions/tctt/activities/:tcttActivityId/map    [admin/routes/attraction/admTcttRouter.js]
+  POST   /api/v1/admin/attractions/tctt/activities/:tcttActivityId/unmap    [admin/routes/attraction/admTcttRouter.js]
+## mount /attractions/tickets
+  POST   /api/v1/admin/attractions/tickets/check    [admin/routes/attraction/admAttractionsTicketsRouter.js]
+  GET    /api/v1/admin/attractions/tickets/check    [admin/routes/attraction/admAttractionsTicketsRouter.js]
+  GET    /api/v1/admin/attractions/tickets/reload/ticket    [admin/routes/attraction/admAttractionsTicketsRouter.js]
+## mount /attractions/tickets/setting
+  POST   /api/v1/admin/attractions/tickets/setting/add    [admin/routes/attraction/admAttractionTicketSettingRouter.js]
+  DELETE /api/v1/admin/attractions/tickets/setting/delete/:id    [admin/routes/attraction/admAttractionTicketSettingRouter.js]
+## mount /auth
+  POST   /api/v1/admin/auth/upload-qtn-admins    [admin/routes/auth/admAuthRouter.js]
+## mount /cities
+  GET    /api/v1/admin/cities/all    [admin/routes/global/admCitiesRouter.js]
+## mount /countries
+  GET    /api/v1/admin/countries/all    [admin/routes/settings/admCountriesRouter.js]
+## mount /currencies
+  GET    /api/v1/admin/currencies/all    [admin/routes/settings/admCurrenciesRouter.js]
+## mount /dashboard
+  POST   /api/v1/admin/dashboard/add    [admin/routes/dashboard/admDashboardRouter.js]
+  GET    /api/v1/admin/dashboard/all    [admin/routes/dashboard/admDashboardRouter.js]
+  DELETE /api/v1/admin/dashboard/delete/:id    [admin/routes/dashboard/admDashboardRouter.js]
+  GET    /api/v1/admin/dashboard/single/:id    [admin/routes/dashboard/admDashboardRouter.js]
+  PATCH  /api/v1/admin/dashboard/update/:id    [admin/routes/dashboard/admDashboardRouter.js]
+## mount /email-receiver-config
+  GET    /api/v1/admin/email-receiver-config/all    [admin/routes/global/admEmailReceiverConfigRouter.js]
+  DELETE /api/v1/admin/email-receiver-config/delete/:id    [admin/routes/global/admEmailReceiverConfigRouter.js]
+  GET    /api/v1/admin/email-receiver-config/single/:id    [admin/routes/global/admEmailReceiverConfigRouter.js]
+  PATCH  /api/v1/admin/email-receiver-config/update    [admin/routes/global/admEmailReceiverConfigRouter.js]
+## mount /email/image
+  GET    /api/v1/admin/email/image/single/:id    [admin/routes/email/admEmailImageRouter.js]
+  PATCH  /api/v1/admin/email/image/update/:id    [admin/routes/email/admEmailImageRouter.js]
+## mount /emails
+  POST   /api/v1/admin/emails/send    [admin/routes/settings/admEmailsRouter.js]
+## mount /frontend/b2b/home
+  GET    /api/v1/admin/frontend/b2b/home/about-us    [admin/routes/b2bFrontend/admB2bFrontendRouter.js]
+  PATCH  /api/v1/admin/frontend/b2b/home/about-us/upsert    [admin/routes/b2bFrontend/admB2bFrontendRouter.js]
+  POST   /api/v1/admin/frontend/b2b/home/banner/add/:id    [admin/routes/b2bFrontend/admB2bFrontendRouter.js]
+  PATCH  /api/v1/admin/frontend/b2b/home/banner/edit/:id/:bannerId    [admin/routes/b2bFrontend/admB2bFrontendRouter.js]
+  POST   /api/v1/admin/frontend/b2b/home/heros/add    [admin/routes/b2bFrontend/admB2bFrontendRouter.js]
+  POST   /api/v1/admin/frontend/b2b/home/section/add    [admin/routes/b2bFrontend/admB2bFrontendRouter.js]
+  PATCH  /api/v1/admin/frontend/b2b/home/section/edit/:id    [admin/routes/b2bFrontend/admB2bFrontendRouter.js]
+## mount /frontend/b2c/home
+  GET    /api/v1/admin/frontend/b2c/home/about-us    [admin/routes/b2cFrontend/admB2cFrontendRouter.js]
+  PATCH  /api/v1/admin/frontend/b2c/home/about-us/upsert    [admin/routes/b2cFrontend/admB2cFrontendRouter.js]
+  POST   /api/v1/admin/frontend/b2c/home/banner/add/:id    [admin/routes/b2cFrontend/admB2cFrontendRouter.js]
+  GET    /api/v1/admin/frontend/b2c/home/banner/all/:id    [admin/routes/b2cFrontend/admB2cFrontendRouter.js]
+  DELETE /api/v1/admin/frontend/b2c/home/banner/delete/:id/:bannerId    [admin/routes/b2cFrontend/admB2cFrontendRouter.js]
+  PATCH  /api/v1/admin/frontend/b2c/home/banner/edit/:id/:bannerId    [admin/routes/b2cFrontend/admB2cFrontendRouter.js]
+  POST   /api/v1/admin/frontend/b2c/home/heros/add    [admin/routes/b2cFrontend/admB2cFrontendRouter.js]
+  POST   /api/v1/admin/frontend/b2c/home/section/add    [admin/routes/b2cFrontend/admB2cFrontendRouter.js]
+  GET    /api/v1/admin/frontend/b2c/home/section/all    [admin/routes/b2cFrontend/admB2cFrontendRouter.js]
+  DELETE /api/v1/admin/frontend/b2c/home/section/delete/:id    [admin/routes/b2cFrontend/admB2cFrontendRouter.js]
+  PATCH  /api/v1/admin/frontend/b2c/home/section/edit/:id    [admin/routes/b2cFrontend/admB2cFrontendRouter.js]
+## mount /hotels
+  GET    /api/v1/admin/hotels/comparison-list/excel    [admin/routes/hotel/admHotelsRouter.js]
+  POST   /api/v1/admin/hotels/upload    [admin/routes/hotel/admHotelsRouter.js]
+## mount /hotels/amenities
+  POST   /api/v1/admin/hotels/amenities/add    [admin/routes/hotel/admHotelAmenitiesRouter.js]
+  GET    /api/v1/admin/hotels/amenities/all    [admin/routes/hotel/admHotelAmenitiesRouter.js]
+  PATCH  /api/v1/admin/hotels/amenities/update/:id    [admin/routes/hotel/admHotelAmenitiesRouter.js]
+## mount /hotels/amenities/groups
+  POST   /api/v1/admin/hotels/amenities/groups/add    [admin/routes/hotel/admHotelGroupAmenitiesRouter.js]
+  PATCH  /api/v1/admin/hotels/amenities/groups/update/:id    [admin/routes/hotel/admHotelGroupAmenitiesRouter.js]
+## mount /hotels/availabilities
+  POST   /api/v1/admin/hotels/availabilities/booking/room-rate    [admin/routes/hotel/admHotelAvailabilitiesRouter.js]
+## mount /hotels/board-types
+  GET    /api/v1/admin/hotels/board-types/all/:hotelId    [admin/routes/hotel/admBoardTypesRouter.js]
+  GET    /api/v1/admin/hotels/board-types/single/:id    [admin/routes/hotel/admBoardTypesRouter.js]
+## mount /hotels/contract-providers
+  POST   /api/v1/admin/hotels/contract-providers/add    [admin/routes/hotel/admContractProvidersRouter.js]
+  GET    /api/v1/admin/hotels/contract-providers/all    [admin/routes/hotel/admContractProvidersRouter.js]
+  DELETE /api/v1/admin/hotels/contract-providers/delete/:id    [admin/routes/hotel/admContractProvidersRouter.js]
+  PATCH  /api/v1/admin/hotels/contract-providers/update/:id    [admin/routes/hotel/admContractProvidersRouter.js]
+## mount /hotels/hotel-beds
+  POST   /api/v1/admin/hotels/hotel-beds/add-hb-room-to-main    [admin/routes/hotel/admHotelBedsRouter.js]
+  DELETE /api/v1/admin/hotels/hotel-beds/delete-hb-loaded-rmtypes    [admin/routes/hotel/admHotelBedsRouter.js]
+  POST   /api/v1/admin/hotels/hotel-beds/load/accommodation-types    [admin/routes/hotel/admHotelBedsRouter.js]
+  POST   /api/v1/admin/hotels/hotel-beds/load/amenities    [admin/routes/hotel/admHotelBedsRouter.js]
+  POST   /api/v1/admin/hotels/hotel-beds/load/board-types    [admin/routes/hotel/admHotelBedsRouter.js]
+  POST   /api/v1/admin/hotels/hotel-beds/load/chains    [admin/routes/hotel/admHotelBedsRouter.js]
+  POST   /api/v1/admin/hotels/hotel-beds/load/cities-areas    [admin/routes/hotel/admHotelBedsRouter.js]
+  POST   /api/v1/admin/hotels/hotel-beds/load/countries-states    [admin/routes/hotel/admHotelBedsRouter.js]
+  POST   /api/v1/admin/hotels/hotel-beds/load/hotels    [admin/routes/hotel/admHotelBedsRouter.js]
+  POST   /api/v1/admin/hotels/hotel-beds/load/rate-comments    [admin/routes/hotel/admHotelBedsRouter.js]
+  POST   /api/v1/admin/hotels/hotel-beds/load/room-types    [admin/routes/hotel/admHotelBedsRouter.js]
+## mount /hotels/orders
+  POST   /api/v1/admin/hotels/orders/apiout/cancel-request/approve/:cancellationId    [admin/routes/hotel/admHotelOrdersRouter.js]
+  POST   /api/v1/admin/hotels/orders/apiout/cancel/:orderId    [admin/routes/hotel/admHotelOrdersRouter.js]
+  POST   /api/v1/admin/hotels/orders/apiout/confirm/:orderId    [admin/routes/hotel/admHotelOrdersRouter.js]
+  POST   /api/v1/admin/hotels/orders/b2b/cancel-request/approve/:cancellationId    [admin/routes/hotel/admHotelOrdersRouter.js]
+  POST   /api/v1/admin/hotels/orders/b2b/cancel/:orderId    [admin/routes/hotel/admHotelOrdersRouter.js]
+  POST   /api/v1/admin/hotels/orders/b2b/confirm/:orderId    [admin/routes/hotel/admHotelOrdersRouter.js]
+## mount /hotels/ottila
+  POST   /api/v1/admin/hotels/ottila/upsert/countries    [admin/routes/hotel/admHotelOttilaRouter.js]
+## mount /hotels/purchase-cancellation
+  POST   /api/v1/admin/hotels/purchase-cancellation/request/:orderId    [admin/routes/hotel/admHotelPurchaseRouter.js]
+## mount /hotels/sales-cancellation
+  POST   /api/v1/admin/hotels/sales-cancellation/request/:orderId    [admin/routes/hotel/admHotelSalesRouter.js]
+## mount /market
+  GET    /api/v1/admin/market/get-all-hotels    [admin/routes/global/admMarketStrategyRouter.js]
+  GET    /api/v1/admin/market/get-all-insurance/:profileId    [admin/routes/global/admMarketStrategyRouter.js]
+  POST   /api/v1/admin/market/update-quotation-profile/:id    [admin/routes/global/admMarketStrategyRouter.js]
+## mount /markup/b2b
+  PATCH  /api/v1/admin/markup/b2b/activity-markup/add    [admin/routes/global/admB2bSpecialMarkupRouter.js]
+  PATCH  /api/v1/admin/markup/b2b/activity-markup/add-multiple    [admin/routes/global/admB2bSpecialMarkupRouter.js]
+  PATCH  /api/v1/admin/markup/b2b/atoa-markup/add-multiple    [admin/routes/global/admB2bSpecialMarkupRouter.js]
+  PATCH  /api/v1/admin/markup/b2b/visa-markup/add-multiple    [admin/routes/global/admB2bSpecialMarkupRouter.js]
+## mount /orders
+  PATCH  /api/v1/admin/orders/b2b/cancel-approval/:cancellationId    [admin/routes/orders/admOrdersRouter.js]
+  PATCH  /api/v1/admin/orders/b2b/cancel/:orderId    [admin/routes/orders/admOrdersRouter.js]
+  GET    /api/v1/admin/orders/b2b/cancel/all    [admin/routes/orders/admOrdersRouter.js]
+  GET    /api/v1/admin/orders/b2b/invoice/:orderId    [admin/routes/orders/admOrdersRouter.js]
+  GET    /api/v1/admin/orders/b2c/invoice/:orderId    [admin/routes/orders/admOrdersRouter.js]
+  GET    /api/v1/admin/orders/count    [admin/routes/orders/admOrdersRouter.js]
+  PATCH  /api/v1/admin/orders/count/:id    [admin/routes/orders/admOrdersRouter.js]
+## mount /profile
+  GET    /api/v1/admin/profile/reseller    [admin/routes/global/admProfileRouter.js]
+## mount /profile/b2b
+  POST   /api/v1/admin/profile/b2b/add-profile    [admin/routes/global/admSingleProfileRouter.js]
+  DELETE /api/v1/admin/profile/b2b/delete-profile/:id    [admin/routes/global/admSingleProfileRouter.js]
+  PUT    /api/v1/admin/profile/b2b/update-profile/:resellerId    [admin/routes/global/admSingleProfileRouter.js]
+## mount /promo-code
+  POST   /api/v1/admin/promo-code/add    [admin/routes/global/admPromoCodeRouter.js]
+  GET    /api/v1/admin/promo-code/all    [admin/routes/global/admPromoCodeRouter.js]
+  DELETE /api/v1/admin/promo-code/delete/:id/:section    [admin/routes/global/admPromoCodeRouter.js]
+  GET    /api/v1/admin/promo-code/single/:id/:section    [admin/routes/global/admPromoCodeRouter.js]
+  PATCH  /api/v1/admin/promo-code/update/:id    [admin/routes/global/admPromoCodeRouter.js]
+## mount /quotation/hotels/orders
+  GET    /api/v1/admin/quotation/hotels/orders/attraction/all    [admin/routes/quotation/admQuotationHotelOrderRouter.js]
+## mount /quotations
+  GET    /api/v1/admin/quotations/confirmed/single/:qtnId    [admin/routes/quotation/admQuotationRouter.js]
+## mount /quotations/costing
+  GET    /api/v1/admin/quotations/costing/all    [admin/routes/quotation/admQuotationCostingRouter.js]
+  GET    /api/v1/admin/quotations/costing/confirmed/single/:qtnId    [admin/routes/quotation/admQuotationCostingRouter.js]
+## mount /quotations/excursion
+  DELETE /api/v1/admin/quotations/excursion/delete/:activityId    [admin/routes/quotation/admExcursionRouter.js]
+## mount /quotations/hotels
+  POST   /api/v1/admin/quotations/hotels/room-type/rate/empty    [admin/routes/quotation/admQuotationHotelRouter.js]
+## mount /resellers
+  GET    /api/v1/admin/resellers/all/list    [admin/routes/global/admResellersRouter.js]
+  POST   /api/v1/admin/resellers/import    [admin/routes/global/admResellersRouter.js]
+## mount /seo
+  POST   /api/v1/admin/seo/add    [admin/routes/seo/admSeoRouter.js]
+  POST   /api/v1/admin/seo/category/add    [admin/routes/seo/admSeoRouter.js]
+  GET    /api/v1/admin/seo/update-category    [admin/routes/seo/admSeoRouter.js]
+## mount /states
+  GET    /api/v1/admin/states/all    [admin/routes/global/admStatesRouter.js]
+## mount /transactions
+  GET    /api/v1/admin/transactions/company/all    [admin/routes/global/admTransactionsRouter.js]
+  GET    /api/v1/admin/transactions/company/all/sheet    [admin/routes/global/admTransactionsRouter.js]
+## mount /transfer/vehicle
+  GET    /api/v1/admin/transfer/vehicle/list/all    [admin/routes/transfers/admVehicleRouter.js]
+## mount /transfers/order
+  PATCH  /api/v1/admin/transfers/order/:orderId/cancel/:transferId    [admin/routes/transfer/admTransferOrderRouter.js]
+  PATCH  /api/v1/admin/transfers/order/b2b/:orderId/cancel/:transferId    [admin/routes/transfer/admTransferOrderRouter.js]
+  PATCH  /api/v1/admin/transfers/order/b2b/approve/canel-request/:cancellationId    [admin/routes/transfer/admTransferOrderRouter.js]
+## mount /transfers/vehicle-types
+  GET    /api/v1/admin/transfers/vehicle-types/add    [admin/routes/transfer/vehicleTypesRouter.js]
+  GET    /api/v1/admin/transfers/vehicle-types/all    [admin/routes/transfer/vehicleTypesRouter.js]
+  GET    /api/v1/admin/transfers/vehicle-types/delete/:id    [admin/routes/transfer/vehicleTypesRouter.js]
+  GET    /api/v1/admin/transfers/vehicle-types/update/:id    [admin/routes/transfer/vehicleTypesRouter.js]
+## mount /transfers/vehicles/models
+  GET    /api/v1/admin/transfers/vehicles/models/all    [admin/routes/transfer/admVehicleModelsRouter.js]
+## mount /transfers/vehicles/trim
+  GET    /api/v1/admin/transfers/vehicles/trim/all    [admin/routes/transfer/admVehicleTrimRouter.js]
+## mount /transfers/vehicles/vehicle-type
+  GET    /api/v1/admin/transfers/vehicles/vehicle-type/all    [admin/routes/transfer/admVehicleTypeRouter.js]
+  GET    /api/v1/admin/transfers/vehicles/vehicle-type/list    [admin/routes/transfer/admVehicleTypeRouter.js]
+## mount /users
+  GET    /api/v1/admin/users/all-excelSheet    [admin/routes/global/admUsersRouter.js]
+  GET    /api/v1/admin/users/all/list    [admin/routes/global/admUsersRouter.js]
+## mount /vendor/attraction
+  GET    /api/v1/admin/vendor/attraction/:vendorId/activity-costing/:activityId    [admin/routes/vendor/admVendorAttractionRouter.js]
+  PATCH  /api/v1/admin/vendor/attraction/activity-cost/update    [admin/routes/vendor/admVendorAttractionRouter.js]
+  POST   /api/v1/admin/vendor/attraction/add    [admin/routes/vendor/admVendorAttractionRouter.js]
+  GET    /api/v1/admin/vendor/attraction/attraction-activities    [admin/routes/vendor/admVendorAttractionRouter.js]
+  DELETE /api/v1/admin/vendor/attraction/delete/:id    [admin/routes/vendor/admVendorAttractionRouter.js]
+  GET    /api/v1/admin/vendor/attraction/single/:id    [admin/routes/vendor/admVendorAttractionRouter.js]
+## mount /visa
+  POST   /api/v1/admin/visa/external/account-providers/add    [admin/routes/visa/admVisaRouter.js]
+## mount /visa/markup
+  GET    /api/v1/admin/visa/markup/all    [admin/routes/visa/admVisaMarkupRouter.js]
+## mount /wallets/b2b
+  POST   /api/v1/admin/wallets/b2b/add/used-credit    [admin/routes/global/admB2bWalletsRouter.js]
+  GET    /api/v1/admin/wallets/b2b/details    [admin/routes/global/admB2bWalletsRouter.js]
+## mount /whatsapp-managment
+  GET    /api/v1/admin/whatsapp-managment/confirm    [admin/routes/settings/admWhatsappManagementRouter.js]
+  DELETE /api/v1/admin/whatsapp-managment/logout    [admin/routes/settings/admWhatsappManagementRouter.js]
+  POST   /api/v1/admin/whatsapp-managment/send-message    [admin/routes/settings/admWhatsappManagementRouter.js]
+  PATCH  /api/v1/admin/whatsapp-managment/update/:id    [admin/routes/settings/admWhatsappManagementRouter.js]
+## mount /whatsapp-service
+  POST   /api/v1/admin/whatsapp-service/send-message    [admin/routes/settings/admWhatsappRouter.js]
+  PATCH  /api/v1/admin/whatsapp-service/update/:id    [admin/routes/settings/admWhatsappRouter.js]

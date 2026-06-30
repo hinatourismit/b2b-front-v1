@@ -225,10 +225,22 @@ map/import/unmap endpoints (mock-DB verified, 19 assertions); admin UI in `admin
 (TCTT Catalog list + sync, attraction detail with map/import/unmap, route + sidebar; production build
 verified). Live end-to-end still pending demo creds.
 
-**Slice 4 — DESIGNED** (not implemented): see `12-tctt-source-resolver.md`. Cheapest-source resolver
-reading `tcttSource`: own-only / tctt-only / both(cheapest at request); same Hina markup pipeline with
-the TC live price as base cost; additive branches at detail/rate/timeslot; listing uses hints;
-fallback-to-own on TCTT failure; re-resolve at booking. Needs demo creds to verify (live TCTT calls).
+**Slice 4 — DONE** (see `12-tctt-source-resolver.md` §9a): cheapest-source resolver + `tcttCost` engine
+override; all 3 pricing touchpoints wired (price-recheck, detail, timeslot); fallback-to-own on TCTT
+failure; 60s cache (bypassed at booking). Logic verified (7-assertion harness).
+
+**Slice 5 — DONE** (booking + dual-wallet; logic verified, 9-assertion harness; live e2e pending):
+- Order model (`b2bAttractionOrder`): additive `source`, `slotId`, `tcttQuote`.
+- Create (`b2bAttractionOrderHelper2`): tctt-sourced activities re-resolve cheapest live (noCache); if
+  tctt wins, the TC price becomes the base cost (markup math → two-layer) and `source`+`tcttQuote` are
+  stamped on the order activity.
+- Complete (`b2bAttractionOrderHelper.attractionOrderCompleteHelper`): new branch keyed on
+  `source==="tctt"` calls `tcttClient.createBooking` (echoes exact TC price, ISO country,
+  `activityReferenceNumber` as idempotency key), maps tickets, sets confirmed, profit = grand−cost.
+  Runs **before** the agent-wallet debit (controller order) → TC-first: TCTT failure ⇒ agent not
+  charged. **Dual-wallet**: TCTT debits Hina's TC wallet; the controller debits the agent's Hina
+  wallet for the agent-facing total; the delta is Hina profit.
+- Live e2e still needs: a mapped tctt activity in test-db + one sandbox booking.
 
 ## 6. Open items
 
